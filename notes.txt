@@ -1,0 +1,60 @@
+
+
+
+POST /api/v1/playlist/getFragment HTTP/1.1
+Host: www.pandora.com
+Connection: keep-alive
+Content-Length: 190
+Origin: https://www.pandora.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36
+Content-Type: application/json
+Accept: application/json, text/plain, */*
+X-AuthToken: BIfJbH4/UsIF55rxPPjF351XP562f5L7RWWY5QY8EpP+CEu9njCoRKlw==
+X-CsrfToken: d439cec51e5e30c
+DNT: 1
+Referer: https://www.pandora.com/station/play/2036382109581442412
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Cookie: wrt=1284504940_7itmt5k4i0rodjjt7e4kev7jb6; pwc-2016=true; _ga=GA1.2.1872189687.1493007291; __gads=ID=958e474417375259:T=1517652730:S=ALNI_MZFLAuNElMB4NM2Sb1-z_owN0Ucyw; fbm_139475280761=base_domain=.pandora.com; _parrable_hawk=01.1519080655.56885a37524d8b5f226fba6fc8e1d2009cc34d0646a95680dc735791f6a9c90be5560e9c2bd6ff4da7f09508bef4d2be1bdca81ff39d5919e45e29d4ff135135dcae72740faac4810a0d; at=wQySENPtQAXEzkHkt5tEsaFMUk7Uzg52u+Rp1tf5LwaAOxCcFJ9IhZ459NO7P1gvuqzaLGX70vfBCACO3a2Z6fujqx+cSK4hM; _gid=GA1.2.1562495949.1521254200; __ar_v4=%7CRKDKEIQ46FGV3CMZBIQWL7%3A20180316%3A1%7CL27JYXGFEVABHDBM7QZP4B%3A20180316%3A1%7CZRRJTB7FKJGD3JPEGYYRPT%3A20180316%3A1; csrftoken=d439cec51e5e30c
+
+
+POST /api/v1/playlist/getFragment HTTP/1.1
+Host: www.pandora.com
+Connection: keep-alive
+Content-Length: 170
+Origin: https://www.pandora.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36
+Content-Type: application/json
+Accept: application/json, text/plain, */*
+X-AuthToken: BIfJbH4/UsIF55rxPPjF351XP562f5L7RWWY5QY8EpP+CEu9njCoRKlw==
+X-CsrfToken: 3e05f70b4110ace5
+DNT: 1
+Referer: https://www.pandora.com/station/play/2036382109581442412
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Cookie: wrt=1284504940_126dusjhjoca4knj616dfnb4j1; pwc-2016=true; _ga=GA1.2.1872189687.1493007291; __gads=ID=958e474417375259:T=1517652730:S=ALNI_MZFLAuNElMB4NM2Sb1-z_owN0Ucyw; fbm_139475280761=base_domain=.pandora.com; _parrable_hawk=01.1519080655.56885a37524d8b5f226fba6fc8e1d2009cc34d0646a95680dc735791f6a9c90be5560e9c2bd6ff4da7f09508bef4d2be1bdca81ff39d5919e45e29d4ff135135dcae72740faac4810a0d; at=wQySENPtQAXEzkHkt5tEsaFMUk7Uzg52u+Rp1tf5LwaAOxCcFJ9IhZ459NO7P1gvuqzaLGX70vfBCACO3a2Z6fujqx+cSK4hM; _gid=GA1.2.1562495949.1521254200; __ar_v4=%7CRKDKEIQ46FGV3CMZBIQWL7%3A20180316%3A1%7CL27JYXGFEVABHDBM7QZP4B%3A20180316%3A1%7CZRRJTB7FKJGD3JPEGYYRPT%3A20180316%3A1; csrftoken=3e05f70b4110ace5
+
+
+
+
+
+
+
+POST /api/v1/auth/login HTTP/1.1
+Host: www.pandora.com
+Connection: keep-alive
+Content-Length: 105
+Accept: application/json, text/plain, */*
+Origin: https://www.pandora.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36
+X-CsrfToken: f8af19f09b0b852e
+Content-Type: application/json
+DNT: 1
+Referer: https://www.pandora.com/account/sign-in
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Cookie: pwc-2016=true; _ga=GA1.2.1872189687.1493007291; __gads=ID=958e474417375259:T=1517652730:S=ALNI_MZFLAuNElMB4NM2Sb1-z_owN0Ucyw; fbm_139475280761=base_domain=.pandora.com; _parrable_hawk=01.1519080655.56885a37524d8b5f226fba6fc8e1d2009cc34d0646a95680dc735791f6a9c90be5560e9c2bd6ff4da7f09508bef4d2be1bdca81ff39d5919e45e29d4ff135135dcae72740faac4810a0d; _gid=GA1.2.1562495949.1521254200; __ar_v4=%7CRKDKEIQ46FGV3CMZBIQWL7%3A20180316%3A1%7CL27JYXGFEVABHDBM7QZP4B%3A20180316%3A1%7CZRRJTB7FKJGD3JPEGYYRPT%3A20180316%3A1; csrftoken=f8af19f09b0b852e; at=wTV5St5eWpG3Zv5amxnY0oPXK+OFmuiaA
+
+{"existingAuthToken":null,"username":"aimemailaccount@gmail.com","password":"1beijo","keepLoggedIn":true}
+
+{"authToken":"BI4eJvvQZGEpVh1GtZkTzAY74m0/6wLFFkhlOS1xUj3XNUNfywnxI4cA==","listenerId":"1284504940","username":"aimemailaccount@gmail.com","webname":"aimemailaccount","explicitContentFilterEnabled":false,"fullName":"The Skipper","birthYear":1980,"zipCode":"99163","gender":"MALE","minor":false,"profilePrivate":false,"emailOptOut":true,"allowProfileComments":true,"notifyOnComment":true,"notifyOnFollow":true,"artistPromoEmailsEnabled":false,"artistAudioMessagesEnabled":false,"isNew":false,"config":{"branding":"Pandora","dailySkipLimit":48,"stationSkipLimit":6,"inactivityTimeout":3600,"experiments":[402,452,1481,949,886,1424,1483,1401,367,1091,1274,1253,1428,753,633,778,1017,375,671,1277,1557,906,236,1194,910,1294,1328,738,1288,484,674,1159,1051,907,1482,1524,1003,417,1186,1484,672,1,1053,983,1287,1427,509,1010,1495,414,1487,336,400,548,1090,53,756,343,1124,943,1584,632,1402,1172,366,1307,424,197,745,359,1509,1519,1527,1289,954,427,1318,1112,1105,984,550,757,566,1404,215,748,707,1385,724,1430,704,1486,1320,1087,1414,1517,673,1452,956,1228,1158,1603,1496,646,810,631,1041,1397,1297,1249,656,1454,1141,1048,1406,1302,995,429,1156,28,1164,176,720,989,1431,448,1226,49,655,657,1423,1046,45,1193,485,1331,1039,1179,571,396,1563,721,587,842,985,1149,1312,994,751,1589,1047,416,654,1309,1325,1221,1429,1541,193,887,1485,752,1177,1117,737,1191,1412,11,1426,1469,1398,722,50,1301,700,955,1118,1334,779,1281,1376,487,454,1225,682,1300,992,1474,777,1453,944,560,658,1339],"flags":["showUpgrade","adSupportedSkip","adSupportedReplay","useAsyncGpt","replaysEnabled","canSubscribe"],"monthlyListeningCapHours":320},"adkv":{"zip":"99163","aa":"0","st":"WA","hours":"0","prg":"1","ag":"37","hhi":"0","clean":"0","co":"53075","ios":"1","l":"dcyw6rujd4uwya2fcexfl4wyq4rrd3kpqjqiarq","an":"1","hisp":"0","et":"2","comped":"0","fam":"3","dse":"0","dma":"881","msa":"","gnd":"1","fb":"1","iat":"1"},"facebookData":{"facebookId":"100002754701272","facebookName":"Jonah Simon","needsReauthorize":true,"disconnected":false,"autoShareEnabled":false,"autoShareTrackStarted":false,"autoShareLikes":false,"autoShareFollows":false},"activeVxRewards":[{"replaysAwarded":3,"replaysRemaining":2,"durationSeconds":86400,"secondsRemaining":77566,"expirationTimeMillis":1521418830300,"vxOfferName":"replays","lineId":"4519168539","creativeId":"138223634746","correlationId":"152133238510477476"}],"listenerToken":"dcyw6rujd4uwya2fcexfl4wyq4rrd3kpqjqiarq","highQualityStreamingEnabled":false,"seenEducation":true,"smartConversionAdUrl":"https://adserver.pandora.com/haymaker/api/v1/serve/?slot=SMART_CONVERSION&targeting=aa%3D0%3Bag%3D37%3Bapp%3D%3Bclean%3D0%3Bco%3D53075%3Bcon%3D%3Bdma%3D881%3Bet%3D2%3Bfam%3D3%3Bgcat%3D%3Bgenre%3D%3Bgnd%3D1%3Bhhi%3D0%3Bhisp%3D0%3Bhours%3D0%3Binteraction%3D__ACTION__%3Bmc%3D%3Bmodel%3D%3Bmsa%3D%3Bst%3DWA%3Bstation%3D%3Buq%3Db2251afaa281bd9c1f31e3aee708952f%3Bvx%3D%3Bzip%3D99163&l=nmjtitsghmtsspnmtburbtri4h6wvlpam5yfjuq&assetType=COACHMARK&site=default&c=__CACHEBUST__","smartConversionTimeoutMillis":5000,"smartConversionDisabled":false,"stationCount":10,"webClientVersion":"1.4.1","placeholderProfileImageUrl":"https://www.pandora.com//static/user/default_images/user_default_t_500x500.png"}

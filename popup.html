@@ -1,0 +1,120 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>My Pandora Extension</title>
+    <style type="text/css">
+      #slidecontainer {
+    	width: 100%; /* Width of the outside container */
+      }
+
+	.css3gradient{
+		width:298px;
+		height:180px;
+ 		background-color:#000000;
+ 		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#000000, endColorstr=#ff7200);
+ 		background-image:-moz-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+		background-image:linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+		background-image:-webkit-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+		background-image:-o-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+		background-image:-ms-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+ 		background-image:-webkit-gradient(linear, left top, right bottom, color-stop(5%,#000000), color-stop(64%,#ff7200),color-stop(95%,#ffffff));
+	}
+
+/* The slider itself */
+      .slider {
+    	-webkit-appearance: none;  /* Override default CSS styles */
+    	appearance: none;
+    	width: 100%; 
+    	height: 16px; 
+    	background: #dd652c; 
+    	outline: none;
+    	opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    	-webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    	transition: opacity .2s;
+      }
+
+/* Mouse-over effects */
+      .slider:hover {
+    	opacity: 1; /* Fully shown on mouse-over */
+      }
+
+/* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */ 
+      .slider::-webkit-slider-thumb {
+   	-webkit-appearance: none; /* Override default look */
+   	appearance: none;
+   	width: 16px; /* Set a specific slider handle width */
+   	height: 16px; /* Slider handle height */
+	border:1px solid blue;
+    	background: url('/sound16.png');
+ 	cursor: pointer; /* Cursor on hover */
+      }
+
+      body {
+        margin: 10px;
+        white-space: nowrap;
+      }
+
+      p {
+	text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
+	font-weight: bold;
+      }
+
+      .img{
+        display: inline-block;
+	border:1px solid blue;
+        margin: 2px 16px;
+	cursor: pointer;
+      }
+      
+
+      .button {
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 15px;
+          margin: 2px 6px;
+          cursor: pointer;
+      }
+
+	.fram {
+	   display: block;
+	   text-align:center;
+	   float:middle;
+	   margin: 0 auto;
+	}
+	
+	.idiv{
+	   display: block;
+	   text-align:center;
+	   float:middle;
+	   margin: 0 auto;
+	}
+      
+      #container {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+    <script src="content.js"></script>
+    <script src="jquery.js"></script>
+  </head>
+  <body class="css3gradient">
+    <img class="img" id="pan" src="/icon64.png">
+    <img class="img" id="close_button" src="/close64.png">
+    <img class="img" id="sound_button" src="/sound64.png">
+    <div class="idiv"><p id="song_info">NaN<br>NaN</p></div>
+    <button class="button" id="replay_button">REPLAY</button>
+    <button class="button" id="play_button">PLAY</button>
+    <button class="button" id="pause_button">PAUSE</button>
+    <button class="button" id="skip_button">SKIP</button>
+    <div id="slide_container">
+	<input type="range" min="0" max="80" value="50" class="slider" id="volume_slider">
+    </div>
+  </body>
+</html>
