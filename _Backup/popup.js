@@ -234,7 +234,11 @@ window.onload = function() {
 	document.getElementById("stationSelector").onclick = station_selector;
 	document.getElementById("nextS").onclick = next_song;
 	document.getElementById("prevS").onclick = prev_song;
+	document.getElementById("alog1").onclick = openOptions;
+	document.getElementById("alog2").onclick = openOptions;
+	document.getElementById("alog3").onclick = openOptions;
 	document.getElementById("rightClickDownload").onclick = downloadSong;
+	document.getElementById("rightClickOptions").onclick = openOptions;
 	document.getElementById("rightClickBGAudio").onclick = disableBackgroundAudio;
 	document.getElementById("rightClickAutoDownload").onclick = disableAutoDownload;
 	setSongMarquee();
@@ -244,6 +248,10 @@ window.onload = function() {
     		e.preventDefault();
 	}, false);
 	if(debug){console.log("onload completed");}
+}
+
+function openOptions(){
+	chrome.runtime.openOptionsPage();
 }
 
 function downloadSong() {
