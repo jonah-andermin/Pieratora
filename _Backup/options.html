@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Pieratora Options</title>
+		<style type="text/css">
+			.css3gradient {
+				background-color: #000000;
+				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#000000, endColorstr=#ff7200);
+				background-image: -moz-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+				background-image: linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+				background-image: -webkit-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+				background-image: -o-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+				background-image: -ms-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
+				background-image: -webkit-gradient(linear, left top, right bottom, color-stop(5%,#000000), color-stop(64%,#ff7200),color-stop(95%,#ffffff));
+				background-repeat: repeat-x;
+				background: linear-gradient(135deg, #000000 5%, #ff7200 64%,#ffffff 95%);
+			}
+			.transparent {
+				background-color: rgba(0,0,0,0.5);
+			}
+			.panel {
+				display: inline-block;
+				height: 230;
+				width: 320;
+				padding: 0px 35px 35px 35px;
+				margin: 10px 10px 10px 10px;
+			}
+			.dragPanel {
+				position: absolute;
+			}
+
+			.dragPanelHeader {
+				background-color: rgba(255, 117, 0, 0.62);
+				margin-right: -35px;
+				margin-left: -35px;
+				width: inherit;
+				height: 25px;
+				cursor: move;
+			}
+			.overflowing {
+				overflow: hidden;
+				white-space: nowrap;
+			}
+			html{
+				height: 100%
+			}
+			p{
+				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
+				font-weight: bold;
+      			}
+			.title{
+				font-size: xx-large;
+			}
+			.label{
+				font-size: large;
+			}
+
+		</style>
+	</head>
+	<body class="css3gradient overflowing">
+		<div class="transparent panel dragPanel overflowing" id="dragDiv">
+			<div class="dragPanelHeader" id="dragDiv_Header"></div>
+			<div><p class="title" style="white-space: nowrap;">Pandora Login</p></div>
+			<div>
+				<p class="label">Username/Email:</p>
+				<div>
+					<input id="user" type="email" autofocus 
+placeholder="UserName@EmailDomain.DomainExtension" value="" autocomplete="off">
+				</div>
+			</div>
+			<span>
+				<p class="label">Password:</p>
+				<div class="overflowing">
+					<input id="pass" type="password" autofocus placeholder="8-6-7-5-3-
+Oh-Niegh-He-Ine" value="" autocomplete="off">
+					<button class="vis" type="button" id="show" style="display: inline-block">Show</button>
+					<button class="hid" type="button" id="hide" style="display: none">Hide</button>
+				</div>
+			</span>
+			<div id="status"></div>
+			<button id="save">Save</button>
+		</div>
+		<script src="options.js"></script>
+	</body>
+</html>
