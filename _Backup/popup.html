@@ -41,21 +41,47 @@
 			transition: opacity .2s;
 		}
 
-			/* Mouse-over effects */
-			.slider:hover {
-				opacity: 1; /* Fully shown on mouse-over */
-			}
+		/* Mouse-over effects */
+		.slider:hover {
+			opacity: 1; /* Fully shown on mouse-over */
+		}
 
-			/* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */
-			.slider::-webkit-slider-thumb {
-				-webkit-appearance: none; /* Override default look */
-				appearance: none;
-				width: 16px; /* Set a specific slider handle width */
-				height: 16px; /* Slider handle height */
-				border: 1px solid blue;
-				background: url('img/sound16.png');
-				cursor: pointer; /* Cursor on hover */
+		/* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none; /* Override default look */
+			appearance: none;
+			width: 16px; /* Set a specific slider handle width */
+			height: 16px; /* Slider handle height */
+			border: 1px solid blue;
+			background: url('img/sound16.png');
+			cursor: pointer; /* Cursor on hover */
+		}
+
+		@keyframes blinking {
+			0%{
+				color: #000000;
 			}
+			33%{
+				color: #0000ff;
+			}
+			66%{
+				color: #ffffff;	
+			}
+			100%{
+				color: #000000;	
+			}
+      		}
+
+		@keyframes nan_NONE{ 
+		}
+
+		.blink {
+			/* NAME | TIME | ITERATION */
+			animation: blinking 3s infinite;
+		}
+		.noBlink {
+			animation: nan_NONE;
+		}
 
 		body {
 			margin: 10px;
@@ -213,7 +239,7 @@
 	<script src="popup.js"></script>
 </head>
 <body class="css3gradient">
-	<span id="stationSelector" class="clickable shadowedObj">Change Station</span></div>
+	<span id="stationSelector" class="clickable shadowedObj blink">Select a Station</span></div>
 	<div id="StationDropped" style="display:none">
 		<a href="#" class="shadowedObj" style='display:block'>Home</a>
 		<a href="#" class="shadowedObj" style='display:block'>About</a>

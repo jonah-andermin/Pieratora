@@ -26,17 +26,18 @@ function sendData(){
 	chrome.runtime.sendMessage({ message: "_INFO", song: _currentSong, station: _currentStation, status: STATUS_ });
 }
 
-function setCookie() {
+function startBackend() {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function()
     {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
         {
-            chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
+		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
 				console.log("callbackCookie");console.log(cookie);
 				_csrf = cookie.value;
 				_cookie = cookie;
-			});
+				});
+		chrome.runtime.sendMessage({ message: "_LOGIN"});
         }
     }; 
     xmlHttp.open( "GET", "https://www.pandora.com", false ); // false for synchronous request
@@ -47,8 +48,15 @@ function getCookie(){
 	console.log("csrfGETCOOKIE:");console.log(_csrf);
 	return (_csrf)? _csrf : ((cookie && cookie.value)? cookie.value : document.cookie.substring(document.cookie.indexOf("csrftoken=")).substring(10,document.cookie.substring(document.cookie.indexOf("csrftoken=")).indexOf(";")));
 }
+///////////////////////////////////////START STUFF!!!
+startBackend();
 
-setCookie();
+//console.log("teststart");
+//chrome.runtime.sendMessage({ message: "_LOGIN"});
+//console.log("testend");
+
+//startSong();
+
 
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
@@ -57,6 +65,7 @@ chrome.runtime.onMessage.addListener(
 			STATUS_.ERROR_ = "MALFORMED_REQUEST";
 		}
 		else if (request.request == "_LOGIN") {
+			console.log("_LOGIN RECIEVED");
 			STATUS_.ERROR_ = false;
 			if(request.options){
 				STATUS_.LOGGED_ = false;
@@ -297,7 +306,7 @@ function addSongs(stationID, func) {//error 3x
 
 //=================================================================================================================================================================================internal_data
 
-function nextSong(stationID, oldID, getLast) {//error 4x
+function nextSong(stationID, oldID, getLast, paused) {//error 4x
 	if ((!stationID || isNaN(stationID)) && _stations && _stations.length > 0) {
 		stationID = _stations[0].stationId;
 		_stationId = stationID
@@ -329,7 +338,7 @@ function nextSong(stationID, oldID, getLast) {//error 4x
 		if(_currentSong.XXRESUMEXX) {
 			_audio.currentTime = _currentSong.XXRESUMEXX;
 		}
-		_audio.play();
+		if(!paused) { _audio.play();}
 	}
 	else if (!_songLists[stationID] || !_songLists[stationID].length) {
 		console.log("2");
@@ -425,6 +434,11 @@ function mutePieratora(power) {
 	console.log("mutemode");console.log(power);
 	_audio.muted = power;
 	console.log(_audio.muted);
+}
+
+function startSong() {
+	console.log("[startSong]|_stationId:", _stationId);
+	nextSong(_stationId, false, false, true);
 }
 
 function replaySong() {

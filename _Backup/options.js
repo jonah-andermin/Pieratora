@@ -3,7 +3,7 @@ function save_options() {
   var user = document.getElementById('user').value;
   var pass = document.getElementById('pass').value;
   chrome.storage.sync.set({
-    userName: user,
+    	userName: user,
 	password: pass,
 	remember: true
   }, function() {
