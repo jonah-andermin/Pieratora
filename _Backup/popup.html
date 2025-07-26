@@ -139,25 +139,54 @@
 		.clickable {
 			cursor: pointer;
 		}
-		#StationDropped {
+		.ContextMenu {
 			position: absolute;
-			top: 18%;
-			left: 2%;
 			background: rgba(0,0,0, 0.6);
-			min-width: 80px;
     			max-height: 150px;
 			overflow: auto;
 			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-			z-index: 10;
 		}
-		#StationDropped a {
+		.ContextMenu a {
 			color: black;
 			padding: 10px 25px 10px 15px;
 			text-decoration: none;
 			display: block;
 		}
-		#StationDropped a:hover {
+		.ContextMenu a:hover {
 			background-color: #f3570c;
+		}
+		.loaded {
+			width: auto;
+		}
+		.wrapper {
+			overflow: hidden; 
+			width: 190px;
+			height: 100%;
+		}
+		span.line {
+			//overflow: hidden; 
+			position: relative;
+			width: auto;
+			top: 15px;
+		}
+
+		.sMarquee {
+			animation: song_marquee 5s linear infinite;
+		}
+		.aMarquee {
+			animation: album_marquee 5s linear infinite;
+		}
+		#StationDropped {
+			top: 18%;
+			left: 2%;
+			z-index: 10;
+		}
+		#rightClickMenu {
+			position: absolute;
+			background: rgba(0,0,0, 0.88);
+			top: 1%;
+			left: 1%;
+			z-index: 11;
 		}
 		#stationSelector {
 			top: 5%;
@@ -233,28 +262,6 @@
 			transform: translate(-50%, -50%);
 			left: 160px;
 		}
-		.loaded {
-			width: auto;
-		}
-		.wrapper {
-			overflow: hidden; 
-			width: 190px;
-			height: 100%;
-		}
-		span.line {
-			//overflow: hidden; 
-			position: relative;
-			width: auto;
-			top: 15px;
-		}
-
-		.sMarquee {
-			animation: song_marquee 5s linear infinite;
-		}
-		.aMarquee {
-			animation: album_marquee 5s linear infinite;
-		}
-
 		span.standard {
 			animation: none;
 			transform: translate(-50%, -50%);
@@ -268,13 +275,17 @@
 			0% { left: 0%; }
 			100% { left: var(--aCalc); }
 		}
+		.disabledMenuItem {
+			display: none;
+		}
+
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="popup.js"></script>
 </head>
 <body class="css3gradient">
 	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink noSelect">Select a Station</span></div>
-	<div id="StationDropped" style="display:none">
+	<div id="StationDropped" class="ContextMenu" style="display:none">
 		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>Whoops! You Aren't Logged In!</a>
 		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>Click Any of These to Log In!</a>
 		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>The Login-Box Can Be Dragged!</a>
@@ -303,6 +314,10 @@
 			<img class="img" title="Toggle Mute" id="sound_button" src="img/soundOn32.png">
 			<input type="range" min="0" max="100" value="100" class="slider" id="volume_slider" title="Volume Slider"></input>
 		</div>
+	</div>
+	<div id="rightClickMenu" class="ContextMenu" style="display:none">
+		<a id="rightClickDownload" href="#" class="shadowedObj noSelect disabledMenuItem" style='display:block'>Download Current Song!</a>
+		<a id="rightClickOptions" href="/options.html" target="_blank" class="shadowedObj noSelect disabledMenuItem" style='display:block'>Open Options Page</a>
 	</div>
 </body>
 </html>

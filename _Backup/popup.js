@@ -169,6 +169,7 @@ function station_selector() {
 	chrome.runtime.sendMessage({ request: "_GET_STATIONS"}, function(response) {
 		document.getElementById("StationDropped").style.display = document.getElementById("StationDropped").style.display==='none'?'block':'none';
 		if(document.getElementById("StationDropped").style.display==='none'){return;}
+		if(!response.stations){ return; }
 		var innerH = ""
 		var station = NaN;
 		for (let i=0; i<response.stations.length; i++) {  
@@ -195,11 +196,11 @@ function login() {
 	chrome.runtime.sendMessage({ request: "_LOGIN", userName: user, password: pass });
 }
 
-function loadHtml(file) {
+function loadHtml(file) {//unused?
 	$("body").load(file + ".html");
 }
 
-function loginFailed() {
+function loginFailed() {//unused?
 	document.body = document.createElement("body");
 	var msg = document.createElement("P");
 	msg.textContent = "Login Failed!\nPlease click retry.";
@@ -227,7 +228,7 @@ function loginFailed() {
 
 }
 
-function loadPopup() {
+function loadPopup() {//unused?
 	//inject css
 	chrome.tabs.executeScript(null, { code: "$('head').append($('<style type=\"text/css\" id=\"pieratoraCss\"></style>')); $('#pieratoraCss').html(\"" + optionsCSS + "\");" });
 	//inject html
@@ -246,17 +247,18 @@ window.onload = function() {
 	document.getElementById("stationSelector").onclick = station_selector;
 	document.getElementById("nextS").onclick = next_song;
 	document.getElementById("prevS").onclick = prev_song;
+	document.getElementById("rightClickDownload").onclick = downloadSong;
 	setSongMarquee();
 	setAlbumMarquee();
 	document.addEventListener("contextmenu", function(e){
-		function callback(a, b) {
-			return function() {
-				console.log('sum = ', (a+b));
-			}
-		}
+		chrome.storage.sync.get( {rightClickDownload: false}, rightClickCallback(e) );
     		e.preventDefault();
 	}, false);
 	if(debug){console.log("onload completed");}
+}
+
+function downloadSong() {
+	chrome.runtime.sendMessage({ request: "_DOWNLOAD" });
 }
 
 function setSongMarquee() {
@@ -271,17 +273,39 @@ function setAlbumMarquee() {
 	root.style.setProperty('--aCalc', temp + "px");
 }
 
-
-//chrome.storage.sync.get( {rightClickDownload: false}, rightClick {
-function rightClick(itemsOuter) {
+function rightClickCallback(e) {
+	return function(items){
 		if(items.rightClickDownload) {
-			
+			document.getElementById("rightClickDownload").classList.add("disabledMenuItem");
 		}
+		else {
+			document.getElementById("rightClickDownload").classList.remove("disabledMenuItem");
+		}
+		console.log(e);
+		var menu = document.getElementById("rightClickMenu");
+		menu.style.display = menu.style.display==='none'?'block':'none';
+		menu.style.top = ""+e.y+"px";
+		if((menu.clientWidth + e.x) > e.view.innerWidth){
+			menu.style.left = ""+(e.view.innerWidth-menu.clientWidth)+"px";
+		}
+		else {
+			menu.style.left = ""+e.x+"px";
+		}
+		if(menu.clientHeight + e.y > e.view.innerHeight){
+			menu.style.top = ""+(e.view.innerHeight-menu.clientHeight)+"px";
+		}
+		else {
+			menu.style.top = ""+e.y+"px";
+		}
+	}
 }
 
-//Close dropdown when window clicked
+//Close dropdown and context when window clicked
 window.onclick = function(event) {
 	if (!event.target.matches('#stationSelector')) {
 		document.getElementById("StationDropped").style.display = 'none';
   	}
+	if (!event.target.matches('#rightClickMenu')) {
+		document.getElementById("rightClickMenu").style.display = 'none';
+	}
 }
