@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(
 					console.log("Try:"); console.log(sendResponse);
 					//request.userName, request.password, 
 					login(sendResponse);
-					return;
+					return true;
 				}
 				catch (e) {
 					console.log("_LOGIN_ERROR:"), console.log(e);
@@ -196,7 +196,7 @@ function httpPostAsync(url, body, requestHeaderAttributes, callback, fail, retry
 		xmlHttp.setRequestHeader(requestHeaderAttributes[req].type, requestHeaderAttributes[req].value);
 	}
 	console.log("sendBody:"); console.log(body);
-	console.log("sendWhole");console.log(xmlHttp);
+	console.log("sendWhole"); console.log(xmlHttp);
 	xmlHttp.send(JSON.stringify(body));
 	
 }
@@ -258,19 +258,21 @@ function getStations(sendResponse) {//error 2x
 				];
 				httpPostAsync("https://www.pandora.com/api/v1/station/getStations", body, requestHeaderAttributes,
 					(function (sr) {
-						console.log("GSsr:"); console.log(sr);
+						console.log("GSsrInner1:"); console.log(sr);
 						return function (response) {
 							console.log("_stations :"); console.log(_stations );
 							_stations = JSON.parse(response).stations;
 							STATUS_.OPEN_ = true;
+							console.log("SendResponseNow1!",sr);
 							sr(STATUS_);
 						}
 					})(sr2),
 					(function (sr) {
-						console.log("GSsr:"); console.log(sr);
+						console.log("GSsrInner2:"); console.log(sr);
 						return function () {
 							STATUS_.OPEN_ = false;
 							STATUS_.ERROR_ = "20";
+							console.log("SendResponseNow2!",sr);
 							sr(STATUS_);
 						}
 					})(sr2)

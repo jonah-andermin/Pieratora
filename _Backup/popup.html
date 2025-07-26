@@ -1,9 +1,4 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html>
 <head>
 	<title>Pieratora Popup</title>
@@ -15,7 +10,6 @@
 		#slidecontainer {
 			width: 100%; /* Width of the outside container */
 		}
-
 		.css3gradient {
 			width: 298px;
 			height: 180px;
@@ -28,7 +22,6 @@
 			background-image: -ms-linear-gradient(left top, #000000 5%, #ff7200 64%,#ffffff 95%);
 			background-image: -webkit-gradient(linear, left top, right bottom, color-stop(5%,#000000), color-stop(64%,#ff7200),color-stop(95%,#ffffff));
 		}
-
 		/* The slider itself */
 		.slider {
 			position: relative;
@@ -44,12 +37,10 @@
 			-webkit-transition: .2s; /* 0.2 seconds transition on hover */
 			transition: opacity .2s;
 		}
-
 		/* Mouse-over effects */
 		.slider:hover {
 			opacity: 1; /* Fully shown on mouse-over */
 		}
-
 		/* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */
 		.slider::-webkit-slider-thumb {
 			-webkit-appearance: none; /* Override default look */
@@ -59,7 +50,6 @@
 			background: url('img/sound16.png');
 			cursor: pointer; /* Cursor on hover */
 		}
-
 		@keyframes blinking {
 			0%{
 				color: #000000;
@@ -71,10 +61,8 @@
 				color: #000000;	
 			}
       		}
-
 		@keyframes nan_NONE{ 
 		}
-
 		.blink {
 			/* NAME | TIME | ITERATION */
 			animation: blinking 2s infinite;
@@ -82,17 +70,14 @@
 		.noBlink {
 			animation: nan_NONE;
 		}
-
 		body {
 			margin: 10px;
 			white-space: nowrap;
 		}
-
 		p, .shadowedObj, .button {
 			text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
 			font-weight: bold;
 		}
-
 		.img {
 			display: inline-block;
 			margin: 1px 2px;
@@ -124,41 +109,33 @@
 		button:focus {
 			outline:0;
 		}
-		
 		.whiteShadowed:hover {
 			text-shadow: -0.6px -0.6px 15px #ffffff, -0.6px 0.4px 15px #ffffff, -0.6px 1.4px 15px #ffffff, 0.4px -0.6px 15px #ffffff, 0.4px 0.4px 15px #ffffff, 0.4px 1.4px 15px #ffffff, 1.4px -0.6px 15px #ffffff, 1.4px 0.4px 15px #ffffff, 1.4px 1.4px 15px #ffffff;
 		}
-
 		.fram {
 			display: block;
 			text-align: center;
 			float: middle;
 			margin: 0 auto;
 		}
-
 		.idiv {
 			display: block;
 			text-align: center;
 			float: center;
 			margin: 0 auto;
 		}
-		
 		.inlinediv {
 			float:top; 
 			display:inline;
 		}
-
 		#container {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
 		}
-		
 		.clickable {
 			cursor: pointer;
 		}
-
-
 		#StationDropped {
 			position: absolute;
 			top: 18%;
@@ -170,14 +147,12 @@
 			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 			z-index: 10;
 		}
-	
 		#StationDropped a {
 			color: black;
 			padding: 10px 25px 10px 15px;
 			text-decoration: none;
 			display: block;
 		}
-		
 		#StationDropped a:hover {
 			background-color: #f3570c;
 		}
@@ -239,9 +214,7 @@
 			transform: translate(-50%, -50%);
 			width 100%
 		}
-
 /*//////////////////////////////////////////////////////////////////////////////////*/
-
 		#songContainer {
 			top: 80px;
 		}
@@ -292,7 +265,6 @@
 			0% { left: 0%; }
 			100% { left: var(--aCalc); }
 		}
-
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="popup.js"></script>
@@ -300,9 +272,9 @@
 <body class="css3gradient">
 	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink">Select a Station</span></div>
 	<div id="StationDropped" style="display:none">
-		<a href="#" class="shadowedObj" style='display:block'>Home</a>
-		<a href="#" class="shadowedObj" style='display:block'>About</a>
-		<a href="#" class="shadowedObj" style='display:block'>Contact</a>
+		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>Whoops! You Aren't Logged In!</a>
+		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>Click Any of These to Log In!</a>
+		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>The Login-Box Can Be Dragged!</a>
 	</div>
 	<p id="station_info">No Station Selected</p>
 	<div class="idiv">

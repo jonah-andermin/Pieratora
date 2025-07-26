@@ -9,10 +9,7 @@ function save_options() {
   }, function() {
     // Update status to let user know options were saved.
     var status = document.getElementById('status');
-    status.textContent = 'Options saved.';
-    setTimeout(function() {
-      status.textContent = '';
-    }, 750);
+    status.textContent = status.textContent + '\r\nOptions saved.\r\n';
   });
 }
 
@@ -38,17 +35,23 @@ function save_login() {
 
 function login() { 
 	console.log("start login!!!");
-	chrome.runtime.sendMessage({ request: "_LOGIN", options: true, userName: document.getElementById('user').value, password: document.getElementById('pass').value}, async function(response) {
-		//alert(response);
-		//if (response == null) {
-		//	return;
-		//}
+	chrome.runtime.sendMessage({ request: "_LOGIN", options: true, userName: document.getElementById('user').value, password: document.getElementById('pass').value}, function(response) {
 		console.log("RESPONE_LOGIN:", response);
+		console.log("response.LOGGED_:", response.LOGGED_);
+		var tempMessage = "";
+		tempMessage = (response.LOGGED_)?'\r\nLogin Success!\r\n\u00a0':'\r\nLogin Failed!\r\n\u00a0';
+		console.log("tempMessage :", tempMessage );
+		var status = document.getElementById('status');
+		status.textContent = status.textContent + tempMessage;
+		setTimeout(function() {
+			console.log("HERE!!!!");
+			status.textContent = '';
+		}, 1750);
 	});
 }
 
 function downloadSong() {
-	chrome.runtime.sendMessage({ request: "_DOWNLOAD" }, function(){});
+	chrome.runtime.sendMessage({ request: "_DOWNLOAD" });
 }
 
 function setSaveCheck() {
