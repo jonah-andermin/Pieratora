@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Pieratora",
-	"version": "1.1.9007",
+	"version": "1.1.9008",
 	"permissions": [ "tabs", "downloads", "background", "cookies", "storage", "https://www.pandora.com/", "https://pandora.com/" ],
 	"browser_action": {
 		"default_icon": {
@@ -59,6 +59,6 @@
 			"description": "Download The Currently Playing Song"
 		}
         },
-	"content_security_policy": "script-src 'self' https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js; object-src 'self'",
+	"content_security_policy": "script-src 'self'; object-src 'self'",
 	"options_page": "options.html"
 }

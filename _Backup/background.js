@@ -24,12 +24,14 @@ function suppress_dev_warning(info) {
 function removal(items){
 	if(items.continuePlaying){return;}
 	chrome.windows.getAll(function(windowsArray){
-	if(_DEBUG_){console.log("CHECKING CLOSE!");}
-	if((!windowsArray.length) && !_PERSIST )//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
-		if(_DEBUG_){console.log("DO CLOSE!");}
-		_audio.pause();//THEN STOP PLAYING AUDIO!!!
-		chrome.runtime.getBackgroundPage.close();
+		if(_DEBUG_){console.log("CHECKING CLOSE!");}
+		if((!windowsArray.length) && !_PERSIST ) {//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
+			if(_DEBUG_){console.log("DO CLOSE!");}
+			_audio.pause();//THEN STOP PLAYING AUDIO!!!
+			chrome.runtime.getBackgroundPage.close();
+		}
 	});
+	
 }
 
 function check_ext_open(callback) {
@@ -470,7 +472,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 	}
 	if(_DEBUG_){console.log("station info:"); console.log(stationID); console.log(_stations);}
 	if(_DEBUG_){console.log("_currentSong");console.log(_currentSong);}
-	if (!jQuery.isEmptyObject(_currentSong)) {
+	if (_currentSong && _currentSong.audioURL) {
 		if(_DEBUG_){console.log("1");}
 		if (!_pastSongs[stationID]) {
 			_pastSongs[stationID] = [];

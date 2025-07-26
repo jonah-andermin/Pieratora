@@ -196,10 +196,6 @@ function login() {
 	chrome.runtime.sendMessage({ request: "_LOGIN", userName: user, password: pass });
 }
 
-function loadHtml(file) {//unused?
-	$("body").load(file + ".html");
-}
-
 function loginFailed() {//unused?
 	document.body = document.createElement("body");
 	var msg = document.createElement("P");
