@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(
 			var album = request.song.albumArt;
 			if (album === undefined){ console.log("ALBUMUNDEFINEDERROR");return;}
 			if (album.length < 1 || album === undefined) {
-				document.body.style.backgroundImage = "url(img/defaultAlbum500.png)"
+				document.body.style.backgroundImage = "url(img/defaultAlbum500.png)";
 				return;
 			}
 			var album500 = album.find(obj => {
@@ -31,6 +31,8 @@ chrome.runtime.onMessage.addListener(
 			}
 			console.log("album500"); console.log(album500);
 			document.body.style.backgroundImage = "url('"+album500.url+"')";
+			var s= ""+Math.floor(Math.random() * 101)+"% "+Math.floor(Math.random() * 101)+"%";
+			document.body.style.backgroundPosition = s;
 			document.getElementById("volume_slider").value = 100 * request.status.VOLUME_;
 		}
 	}
@@ -65,6 +67,7 @@ function run_Pieratora() {
 				document.getElementById('station_info').innerHTML = request.station.name;
 			}
 			var album = response.albumArt;
+			document.body.style.backgroundPosition = ""+Math.floor(Math.random() * 101);+"% "+Math.floor(Math.random() * 101);+"%";
 			if (album.length < 1) {
 				popupDoc.body.style.backgroundImage = "url(img/defaultAlbum500.png)"
 				return;
@@ -132,6 +135,15 @@ function pause_button() {
 function skip_button() {
 	chrome.runtime.sendMessage({ request: "_SKIP" });
 }
+
+function next_song() {
+	chrome.runtime.sendMessage({ request: "_NEXT" });
+}
+
+function prev_song() {
+	chrome.runtime.sendMessage({ request: "_PREV" });
+}
+
 
 function volume_slider() {
 	chrome.runtime.sendMessage({ request: "_VOLUME", volume: document.getElementById("volume_slider").value });
@@ -241,6 +253,8 @@ window.onload = function() {
 	document.getElementById("volume_slider").oninput = volume_slider;
 	document.getElementById("sound_button").onclick = sound_button;
 	document.getElementById("stationSelector").onclick = station_selector;
+	document.getElementById("nextS").onclick = next_song;
+	document.getElementById("prevS").onclick = prev_song;
 	console.log("onload completed");
 }
 

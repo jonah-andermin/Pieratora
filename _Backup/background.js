@@ -113,6 +113,18 @@ chrome.runtime.onMessage.addListener(
 				STATUS_.ERROR_ = "-30";
 			}
 		}
+		else if (request.request == "_PREV") {
+			STATUS_.ERROR_ = false;
+			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
+				prevSong(_stationId);
+				sendResponse({ TYPE: "SONG", SONG_: _currentSong, ERROR_: !_currentSong });
+				sendData();
+				return;
+			}
+			else {
+				STATUS_.ERROR_ = "-31";
+			}
+		}
 		else if (request.request == "_STATION_CHANGE") {
 			STATUS_.ERROR_ = false;
 			_currentStation = request.station
@@ -259,6 +271,7 @@ function getStations(sendResponse) {//error 2x
 	})(sendResponse);
 }
 
+
 function addSongs(stationID, func) {//error 3x
 	if (!func) {
 		func = function () { };
@@ -299,12 +312,13 @@ function nextSong(stationID, oldID, getLast) {//error 4x
 		console.log("1");
 		if (!_pastSongs[stationID]) {
 			_pastSongs[stationID] = [];
-		}if (!_pastSongs[oldID]) {
+		}
+		if (!_pastSongs[oldID]) {
 			_pastSongs[oldID] = [];
 		}
 		_currentSong.XXRESUMEXX = _audio.currentTime
 		_pastSongs[oldID].push(_currentSong);
-		if(_pastSongs[oldID].length > 10) {
+		if(_pastSongs[oldID].length > 25) {
 			_pastSongs[oldID].shift()
 		}
 	}
@@ -339,6 +353,28 @@ function nextSong(stationID, oldID, getLast) {//error 4x
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
 	}
+}
+
+//=================================================================================================================================================================================internal_data
+
+function prevSong(stationID) {//error 5x-??????
+	if ((!stationID || isNaN(stationID)) && _stations && _stations.length > 0) {
+		stationID = _stations[0].stationId;
+		_stationId = stationID
+		_currentStation = _stations[0];
+	}
+	if (!_songLists[stationID] || !_songLists[stationID].length) {
+		_songLists[stationID] = [];
+	}
+	if (!_pastSongs[stationID]) {
+		return;
+	}
+	if(_pastSongs[stationID].length == 0) { return; }
+	_songLists[stationID].unshift(_currentSong);
+	_currentSong = _pastSongs[stationID].pop();
+	_audio.setAttribute('src', _currentSong.audioURL);
+	_audio.volume = STATUS_.VOLUME_;
+	_audio.play();
 }
 
 function _utility_AddNextSong(statID){
