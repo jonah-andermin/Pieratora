@@ -8,6 +8,12 @@ chrome.runtime.onMessage.addListener(
 		if (!request || !request.message) {
 			return;
 		}
+		else if(request.message == "_VOLUME") {
+			document.getElementById("volume_slider").value = 100 * request.volume;
+		}
+		else if(request.message == "MUTE_") {
+			remote_sound_button();
+		}
 		else if (request.message == "_INFO") {
 			if(request.song.songTitle && request.song.artistName) {
 				if(request.song.songTitle.length > 30) {
@@ -42,6 +48,8 @@ chrome.runtime.onMessage.addListener(
 			if (album === undefined){ if(debug){console.log("ALBUMUNDEFINEDERROR");}return;}
 			if (album.length < 1 || album === undefined) {
 				document.body.style.backgroundImage = "url(img/defaultAlbum500.png)";
+				var s= ""+Math.floor(Math.random() * 101)+"% "+Math.floor(Math.random() * 101)+"%";
+				document.body.style.backgroundPosition = s;
 				return;
 			}
 			var album500 = album.find(obj => {
@@ -56,6 +64,15 @@ chrome.runtime.onMessage.addListener(
 			document.body.style.backgroundPosition = s;
 			if(document.getElementById("volume_slider")) {
 				document.getElementById("volume_slider").value = 100 * request.status.VOLUME_;
+			}
+			var btn = document.getElementById("sound_button");
+			if(btn) {
+				if (request.status.MUTED_) {
+					btn.setAttribute('src', "img/soundOff32.png");
+				}
+				else {
+					btn.setAttribute('src', "img/soundOn32.png");
+				}
 			}
 		}
 	}
@@ -122,6 +139,18 @@ function sound_button() {
 		console.log("mutebutton");console.log(btn);
 		console.log(power);
 	}
+	if (!power) {
+		btn.setAttribute('src', "img/soundOn32.png");
+	}
+	else {
+		btn.setAttribute('src', "img/soundOff32.png");
+	}
+}
+
+function remote_sound_button() {
+	var btn = document.getElementById("sound_button");
+	var power = btn.src.includes("img/soundOn32.png");
+	if(debug){console.log("remote_mutebutton");console.log(btn);}
 	if (!power) {
 		btn.setAttribute('src', "img/soundOn32.png");
 	}

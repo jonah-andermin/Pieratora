@@ -18,7 +18,7 @@ chrome.management.getSelf(suppress_dev_warning);
 var _DEBUG_ = true;
 var _SUPPRESSED_ = true;
 
-var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1};
+var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1, MUTED_: false};
 var user = NaN;
 var pass = NaN;
 var _loginData = {};
@@ -35,6 +35,7 @@ var _csrf = null;
 var _cookie = null;
 
 chrome.commands.onCommand.addListener(function(command) {
+	var volume = 0.00;
 	switch(command) {
 		case "play-song":
 			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
@@ -69,6 +70,15 @@ chrome.commands.onCommand.addListener(function(command) {
 				prevSong(_stationId);
 				sendData();
 			}
+			break;
+		case "volume-down":
+			volDown();
+			break;
+		case "volume-up":
+			volUp();
+			break;
+		case "toggle-muted-audio":
+			remoteMute();
 			break;
 		default:
 			if(_DEBUG_){console.log('Command[unsupported]:', command);}
@@ -502,6 +512,7 @@ function stopAudio() {
 function mutePieratora(power) {
 	if(_DEBUG_){console.log("mutemode");console.log(power);}
 	_audio.muted = power;
+	STATUS_.MUTED_ = power;
 	if(_DEBUG_){console.log(_audio.muted);}
 }
 
@@ -527,11 +538,30 @@ function pauseSong() {
 	_audio.pause();
 }
 
+function volUp() {
+	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ += 0.05)>1)?1:STATUS_.VOLUME_;
+	_audio.volume = STATUS_.VOLUME_;
+	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
+}
+
+function volDown() {
+	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ -= 0.05)<0)?0:STATUS_.VOLUME_;
+	_audio.volume = STATUS_.VOLUME_;
+	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
+}
+
+function remoteMute() {
+	chrome.runtime.sendMessage({ message: "MUTE_" });
+	_audio.muted = !_audio.muted;
+	STATUS_.MUTED_ = _audio.muted;
+}
+
 function download(song) {
 	if(song && song.audioURL && song.artistName && song.songTitle) {
 		chrome.downloads.download({//DOWNLOAD LINK LABEL
 			url: song.audioURL,
-			filename: song.artistName+ " - " +song.songTitle+".m4a"
+			filename: song.artistName+ " - " +song.songTitle+".m4a",
+			conflictAction: "overwrite"
 		});
 	}
 	else {
