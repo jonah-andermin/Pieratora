@@ -228,15 +228,6 @@ function loginFailed() {//unused?
 
 }
 
-function loadPopup() {//unused?
-	//inject css
-	chrome.tabs.executeScript(null, { code: "$('head').append($('<style type=\"text/css\" id=\"pieratoraCss\"></style>')); $('#pieratoraCss').html(\"" + optionsCSS + "\");" });
-	//inject html
-	chrome.tabs.executeScript(null, { code: "$('body').append($('<div style=\"z-index: 99\" class=\".pieratora .pieratora-block pieratora-transparent pieratora-panel pieratora-dragPanel pieratora-overflowing pieratora-topLeft\" id=\"dragDiv\"></div>').load('" + chrome.runtime.getURL('optionsInjection.html') + "'));" });
-	//inject js
-	chrome.tabs.executeScript(null, { code: optionsJS });
-}
-
 window.onload = function() {
 	document.getElementById("play_button").onclick = play_button;
 	document.getElementById("pause_button").onclick = pause_button;
@@ -249,6 +240,7 @@ window.onload = function() {
 	document.getElementById("prevS").onclick = prev_song;
 	document.getElementById("rightClickDownload").onclick = downloadSong;
 	document.getElementById("rightClickBGAudio").onclick = disableBackgroundAudio;
+	document.getElementById("rightClickAutoDownload").onclick = disableAutoDownload;
 	setSongMarquee();
 	setAlbumMarquee();
 	document.addEventListener("contextmenu", function(e){
@@ -264,6 +256,10 @@ function downloadSong() {
 
 function disableBackgroundAudio() {
 	chrome.storage.sync.set( {continuePlaying: false} );
+}
+
+function disableAutoDownload() {
+	chrome.storage.sync.set( {autoDownload: false} );
 }
 
 function setSongMarquee() {
@@ -291,6 +287,12 @@ function rightClickCallback(e) {
 		}
 		else {
 			document.getElementById("rightClickBGAudio").classList.remove("disabledMenuItem");
+		}
+		if(!items.autoDownload) {
+			document.getElementById("rightClickAutoDownload").classList.add("disabledMenuItem");
+		}
+		else {
+			document.getElementById("rightClickAutoDownload").classList.remove("disabledMenuItem");
 		}
 		console.log(e);
 		var menu = document.getElementById("rightClickMenu");
