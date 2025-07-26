@@ -28,6 +28,7 @@ function removal(items){
 	if((!windowsArray.length) && !_PERSIST )//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
 		if(_DEBUG_){console.log("DO CLOSE!");}
 		_audio.pause();//THEN STOP PLAYING AUDIO!!!
+		chrome.runtime.getBackgroundPage.close();
 	});
 }
 
@@ -190,8 +191,11 @@ chrome.runtime.onMessage.addListener(
 		if(_DEBUG_){console.log("request:"); console.log(request);}
 		if (!request || !request.request) {
 			STATUS_.ERROR_ = "MALFORMED_REQUEST";
+			sendResponse(STATUS_);
+			return;
 		}
-		else if (request.request == "_LOGIN") {
+		switch(request.request) {
+		case "_LOGIN":
 			if(_DEBUG_){console.log("_LOGIN RECIEVED");}
 			STATUS_.ERROR_ = false;
 			if(request.options){
@@ -216,8 +220,8 @@ chrome.runtime.onMessage.addListener(
 			else {
 				STATUS_.ERROR_ = "-11";
 			}
-		}
-		else if (request.request == "_GET_STATIONS") {
+			break;
+		case "_GET_STATIONS":
 			STATUS_.ERROR_ = false;
 			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
 				sendResponse({ TYPE: "STATIONS", stations: _stations });
@@ -226,8 +230,8 @@ chrome.runtime.onMessage.addListener(
 			else {
 				STATUS_.ERROR_ = "-20";
 			}
-		}
-		else if (request.request == "_GET_CURRENT_STATION") {
+			break;
+		case "_GET_CURRENT_STATION":
 			STATUS_.ERROR_ = false;
 			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
 				sendResponse({ TYPE: "CURRENT_STATION", _currentStation });
@@ -236,8 +240,9 @@ chrome.runtime.onMessage.addListener(
 			else {
 				STATUS_.ERROR_ = "-21";
 			}
-		}
-		else if (request.request == "_NEXT" || request.request == "_SKIP") {
+			break;
+		case "_SKIP":
+		case "_NEXT":
 			STATUS_.ERROR_ = false;
 			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
 				nextSong(_stationId);
@@ -248,8 +253,8 @@ chrome.runtime.onMessage.addListener(
 			else {
 				STATUS_.ERROR_ = "-30";
 			}
-		}
-		else if (request.request == "_PREV") {
+			break;
+		case "_PREV":
 			STATUS_.ERROR_ = false;
 			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
 				prevSong(_stationId);
@@ -260,8 +265,8 @@ chrome.runtime.onMessage.addListener(
 			else {
 				STATUS_.ERROR_ = "-31";
 			}
-		}
-		else if (request.request == "_STATION_CHANGE") {
+			break;
+		case "_STATION_CHANGE":
 			STATUS_.ERROR_ = false;
 			_currentStation = request.station
 			var oldID = _stationId;
@@ -269,35 +274,36 @@ chrome.runtime.onMessage.addListener(
 			STATUS_.ERROR_ = !_stationId;
 			nextSong(_stationId, oldID, true);
 			sendData();
-		}
-		else if (request.request == "_SOUND") {
+			break;
+		case "_SOUND":
 			mutePieratora(request.power);
-		}
-		else if (request.request == "_REPLAY") {
+			break;
+		case "_REPLAY":
 			replaySong();
-		}
-		else if (request.request == "_PLAY") {
+			break;
+		case "_PLAY":
 			playSong();
-		}
-		else if (request.request == "_PAUSE") {
+			break;
+		case "_PAUSE":
 			pauseSong();
-		}
-		else if (request.request == "_INFO") {
+			break;
+		case "_INFO":
 			if(_DEBUG_){console.log("INFO RESPONSE:");console.log(_currentSong);}
 			//sendResponse(_currentSong);
-		}
-		else if (request.request == "_VOLUME") {
+			break;
+		case "_VOLUME":
 			STATUS_.VOLUME_ = request.volume / 100;
 			_audio.volume = STATUS_.VOLUME_;
-		}
-		else if (request.request == "_DOWNLOAD") {
+			break;
+		case "_DOWNLOAD":
 			download(_currentSong);
-		}
-		else if (request.request == "_STATUS") {
+			break;
+		case "_STATUS":
 			sendData();
-		}
-		else {
+			break;
+		default:
 			if(_DEBUG_){ console.log("request-not-implemented:", request); }
+			break;
 		}
 		sendResponse(STATUS_);
 	}
@@ -519,6 +525,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
 	}
+	autoDownload();
 }
 
 //=================================================================================================================================================================================internal_data
@@ -546,6 +553,7 @@ function prevSong(stationID) {//error 5x-??????
 	}
 	_audio.volume = STATUS_.VOLUME_;
 	_audio.play();
+	autoDownload()
 }
 
 function _utility_AddNextSong(statID){
@@ -564,6 +572,7 @@ function _utility_AddNextSong(statID){
 		}
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
+		autoDownload();
 		sendData();
 	});
 }
@@ -603,6 +612,7 @@ function playSong() {
 	}
 	if(_DEBUG_){console.log("play!!!!!!!!");}
 	_audio.play();
+	autoDownload();
 }
 
 function pauseSong() {
@@ -638,4 +648,13 @@ function download(song) {
 	else {
 		if(_DEBUG_){console.log("DOWNLOAD FAILURE!!!!!");}
 	}
+}
+
+function autoDownload(){
+	chrome.storage.sync.get({ autoDownload: false}, function (items) {
+		if(items.autoDownload && !_currentSong.downloaded){
+			_currentSong.downloaded = true;
+			download(_currentSong);
+		}
+	});
 }

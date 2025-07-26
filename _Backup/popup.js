@@ -244,7 +244,7 @@ window.onload = function() {
 	setSongMarquee();
 	setAlbumMarquee();
 	document.addEventListener("contextmenu", function(e){
-		chrome.storage.sync.get( {rightClickDownload: false, continuePlaying: false}, rightClickCallback(e) );
+		chrome.storage.sync.get( {rightClickDownload: false, continuePlaying: false, autoDownload: false}, rightClickCallback(e) );
     		e.preventDefault();
 	}, false);
 	if(debug){console.log("onload completed");}

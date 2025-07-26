@@ -281,6 +281,9 @@
 		#rightClickBGAudio.disabledMenuItem {
 			display: none;
 		}
+		#rightClickAutoDownload.disabledMenuItem {
+			display: none;
+		}
 
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -320,7 +323,7 @@
 	</div>
 	<div id="rightClickMenu" class="ContextMenu" style="display:none">
 		<a id="rightClickDownload" href="#" title="Downloads The Currently Playing Song" class="shadowedObj noSelect disabledMenuItem">Download Current Song!</a>
-		<a id="rightClickOptions" href="/options.html" target="_blank" title="Opens The Options Page" class="shadowedObj noSelect disabledMenuItem" style='display:block'>Open Options Page</a>
+		<a id="rightClickOptions" href="/options.html" target="_blank" title="Opens The Options Page" class="shadowedObj noSelect" style='display:block'>Open Options Page</a>
 		<a id="rightClickBGAudio" href="#" title="Prevent Audio form Playing After Chrome Has Been Closed" class="shadowedObj noSelect disabledMenuItem">Block Audio after Close</a>
 		<a id="rightClickAutoDownload" href="#" title="Disables Automatic Download Of Every Song" class="shadowedObj noSelect disabledMenuItem">Disable Auto-Download</a>
 	</div>

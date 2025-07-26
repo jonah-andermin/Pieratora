@@ -123,7 +123,7 @@ function so3(e) {
 function so4(e) {
 	if(e.target.tagName == "LABEL"){ return; }
 	if(document.getElementById("so4Check").checked){
-		document.getElementById("so4Check").checked = confirm("Enabling this allows Pieratora to continue playing after Chrome has been closed.\n\nAny Keyboard Shortcuts set to 'Global' will still work.\nIn this state the extension can be accessed by re-opening chrome, or via the Chrome Icon in the System Tray.\n\nIn order for this mode to work make sure you have enabled the 'Continue running background apps when Google Chrome is closed' setting from your Chrome Browser Setting. The 'Play In Background' button under 'Special Options' will navigate you to this setting.\n\nOnce this setting is enabled audio will continue even though you close chrome, please confirm you would like to enable this setting!");
+		document.getElementById("so4Check").checked = confirm("Enabling this allows Pieratora to continue playing after Chrome has been closed.\n\nAny Keyboard Shortcuts set to 'Global' will still work.\nIn this state, the extension can be accessed by re-opening chrome or via the Chrome Icon in the System Tray.\n\nIn order for this mode to work, make sure you have enabled the \"Continue running background apps when Google Chrome is closed\" setting from your Chrome Browser Setting. The \"Play In Background\" button under \"Special Options\" will navigate you to this setting.\n\nOnce this setting is enabled, audio will continue even though you close chrome. Please confirm you would like to enable this setting!");
 	}
 	chrome.storage.sync.set( {continuePlaying: document.getElementById("so4Check").checked} );
 }
