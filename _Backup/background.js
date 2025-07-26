@@ -1,3 +1,23 @@
+function suppress_dev_warning(info) {
+	if(!_SUPPRESSED_){return;}
+	if(info.installType == "development"){
+		if(_DEBUG_){console.log("Development mode is active! Supressing warning!");}
+		chrome.windows.create({type: 'normal',focused: true, state: 'maximized'}, function(window) {
+			chrome.windows.getAll( function(windows) {
+				for(var i=0;i<windows.length;i++) {
+					if(windows[i].id!=window.id) {
+						chrome.windows.remove(windows[i].id);
+					}
+				}
+			});
+		});
+	}
+}
+chrome.management.getSelf(suppress_dev_warning);
+
+var _DEBUG_ = true;
+var _SUPPRESSED_ = true;
+
 var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1};
 var user = NaN;
 var pass = NaN;
@@ -14,6 +34,47 @@ var _password = false;
 var _csrf = null;
 var _cookie = null;
 
+chrome.commands.onCommand.addListener(function(command) {
+	switch(command) {
+		case "play-song":
+			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
+				login(function(status){if(STATUS_.OPEN_ && STATUS_.LOGGED_){playSong();}});
+			}
+			else {
+				playSong();
+			}
+			break;
+		case "pause-song":
+			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
+				login(function(status){if(STATUS_.OPEN_ && STATUS_.LOGGED_){pauseSong();}});
+			}
+			else {
+				pauseSong();
+			}
+			break;
+		case "next-song":
+			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
+				login(function(status){if(STATUS_.OPEN_ && STATUS_.LOGGED_){nextSong(_stationId);sendData();}});
+			}
+			else {
+				nextSong(_stationId);
+				sendData();
+			}
+			break;
+		case "previous-song":
+			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
+				login(function(status){if(STATUS_.OPEN_ && STATUS_.LOGGED_){prevSong(_stationId);sendData();}});
+			}
+			else {
+				prevSong(_stationId);
+				sendData();
+			}
+			break;
+		default:
+			if(_DEBUG_){console.log('Command[unsupported]:', command);}
+}
+      });
+
 chrome.storage.sync.get({
 	userName: '',
 	password: ''
@@ -26,26 +87,25 @@ function sendData(){
 	chrome.runtime.sendMessage({ message: "_INFO", song: _currentSong, station: _currentStation, status: STATUS_ });
 }
 
-function startBackend() {
+function startBackend(callback) {
+	if(!callback){callback = function(){};}
 	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function()
-    {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-        {
-		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
-				console.log("callbackCookie");console.log(cookie);
+	xmlHttp.onreadystatechange = function() {
+        	if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
+				if(_DEBUG_){console.log("callbackCookie");console.log(cookie);}
 				_csrf = cookie.value;
 				_cookie = cookie;
-				});
-		chrome.runtime.sendMessage({ message: "_LOGIN"});
-        }
-    }; 
-    xmlHttp.open( "GET", "https://www.pandora.com", true ); // false for synchronous request
-    xmlHttp.send( null );
+			});
+			callback();
+        	}
+    	}; 
+	xmlHttp.open( "GET", "https://www.pandora.com", true ); // false for synchronous request
+	xmlHttp.send( null );
 }
 
 function getCookie(){
-	console.log("csrfGETCOOKIE:");console.log(_csrf);
+	if(_DEBUG_){console.log("csrfGETCOOKIE:");console.log(_csrf);}
 	return (_csrf)? _csrf : ((cookie && cookie.value)? cookie.value : document.cookie.substring(document.cookie.indexOf("csrftoken=")).substring(10,document.cookie.substring(document.cookie.indexOf("csrftoken=")).indexOf(";")));
 }
 ///////////////////////////////////////START STUFF!!!
@@ -54,12 +114,12 @@ startBackend();
 
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
-		console.log("request:"); console.log(request);
+		if(_DEBUG_){console.log("request:"); console.log(request);}
 		if (!request || !request.request) {
 			STATUS_.ERROR_ = "MALFORMED_REQUEST";
 		}
 		else if (request.request == "_LOGIN") {
-			console.log("_LOGIN RECIEVED");
+			if(_DEBUG_){console.log("_LOGIN RECIEVED");}
 			STATUS_.ERROR_ = false;
 			if(request.options){
 				STATUS_.LOGGED_ = false;
@@ -70,13 +130,13 @@ chrome.runtime.onMessage.addListener(
 						_username = request.userName
 						_password = request.password
 					}
-					console.log("Try:"); console.log(sendResponse);
+					if(_DEBUG_){console.log("Try:"); console.log(sendResponse);}
 					//request.userName, request.password, 
 					login(sendResponse);
 					return true;
 				}
 				catch (e) {
-					console.log("_LOGIN_ERROR:"), console.log(e);
+					if(_DEBUG_){console.log("_LOGIN_ERROR:"), console.log(e);}
 					STATUS_.ERROR_ = "-10";
 				}
 			}
@@ -153,7 +213,7 @@ chrome.runtime.onMessage.addListener(
 			pauseSong();
 		}
 		else if (request.request == "_INFO") {
-			console.log("INFO RESPONSE:");console.log(_currentSong);
+			if(_DEBUG_){console.log("INFO RESPONSE:");console.log(_currentSong);}
 			//sendResponse(_currentSong);
 		}
 		else if (request.request == "_VOLUME") {
@@ -179,45 +239,50 @@ function httpPostAsync(url, body, requestHeaderAttributes, callback, fail, retry
 			callback(xmlHttp.responseText);
 		}
 		else if (xmlHttp.readyState == 4){
-			console.log("{Status != 200} RESPONSE:"), console.log(xmlHttp.responseText), (fail || function(){})();
-			startBackend();
-			login();/////////////////////////////////////try correct?
+			if(_DEBUG_){console.log("{Status != 200} RESPONSE:"), console.log(xmlHttp.responseText), (fail || function(){})();}
+			STATUS_.LOGGED_ = false;
+			STATUS_.OPEN_ = false;
 			if(!retry){
-				console.log("retry post!!!");
-				httpPostAsync(url, body, requestHeaderAttributes, callback, fail, true);/////does this work even?
+				startBackend(function(){
+					login(function(){
+						if(_DEBUG_){console.log("retry post!!!");}
+						if(requestHeaderAttributes.filter(obj => {return obj.type === "X-CsrfToken"}).length){requestHeaderAttributes.filter(obj => {return obj.type === "X-CsrfToken"})[0].value = getCookie();}
+						if(requestHeaderAttributes.filter(obj => {return obj.type === "X-AuthToken"}).length){requestHeaderAttributes.filter(obj => {return obj.type === "X-AuthToken"})[0].value = _loginData.authToken;}
+						httpPostAsync(url, body, requestHeaderAttributes, callback, fail, true);/////does this work even?
+					});/////////////////////////////////////try correct?
+				});
 			}
-			//STATUS_.LOGGED_ = false; ///////////////////////////////don't set because it won't be reset
 		}
 	}
 	xmlHttp.open("POST", url, true); //true == async
-	//console.log(requestHeaderAttributes);
+	if(_DEBUG_){console.log("requestHeaderAttributes:", requestHeaderAttributes);}
 	for (req in requestHeaderAttributes) {
-		console.log("request header [t,v]"); console.log(requestHeaderAttributes[req].type); console.log(requestHeaderAttributes[req].value);
+		if(_DEBUG_){console.log("request header [t,v]"); console.log(requestHeaderAttributes[req].type); console.log(requestHeaderAttributes[req].value);}
 		xmlHttp.setRequestHeader(requestHeaderAttributes[req].type, requestHeaderAttributes[req].value);
 	}
-	console.log("sendBody:"); console.log(body);
-	console.log("sendWhole"); console.log(xmlHttp);
+	if(_DEBUG_){console.log("sendBody:"); console.log(body);}
+	if(_DEBUG_){console.log("sendWhole"); console.log(xmlHttp);}
 	xmlHttp.send(JSON.stringify(body));
-	
 }
 
 //=================================================================================================================================================================================login
 
-function login(sendResponse) {//error 1x
-	console.log("sendResponse:"); console.log(sendResponse);
+function login(sendResponse) {//sendResponse is a function passed along to inner callbacks, called when they finish. ussually native "chrome messaging sendresponse" function
+	if(!sendResponse){sendResponse = function(){};}
+	if(_DEBUG_){console.log("sendResponse:"); console.log(sendResponse);}
 	(function (sr1) {
-		console.log("SR1:"); console.log(sr1);
+		if(_DEBUG_){console.log("SR1:"); console.log(sr1);}
 		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, (function (sr2) {
-			console.log("SR2:"); console.log(sr2);
+			if(_DEBUG_){console.log("SR2:"); console.log(sr2);}
 			return function (cookie) {
-				console.log("COOOOOOOOOKEI!"); console.log(cookie);
+				if(_DEBUG_){console.log("COOOOOOOOOKEI!"); console.log(cookie);}
 				var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
 				{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
 				{ 'type': 'X-CsrfToken', 'value': getCookie()}
 				];
 				httpPostAsync("https://www.pandora.com/api/v1/auth/login", { "existingAuthToken": null, "username": _username, "password": _password, "keepLoggedIn": true }, requestHeaderAttributes,
 					(function (sr) {
-						console.log("sr001:"); console.log(sr);
+						if(_DEBUG_){console.log("sr001:"); console.log(sr);}
 						return function (response) {
 							_loginData = JSON.parse(response);
 							STATUS_.LOGGED_ = true;
@@ -225,13 +290,14 @@ function login(sendResponse) {//error 1x
 						};
 					})(sr2),
 					(function (sr) {
-						console.log("sr002:"); console.log(sendResponse);
+						if(_DEBUG_){console.log("sr002:"); console.log(sendResponse);}
 						return function () {
 							STATUS_.LOGGED_ = false;
 							STATUS_.ERROR_ = "10";
 							sr(STATUS_);
 						};
-					})(sr2)
+					})(sr2),
+					true
 				);
 			}
 		})(sr1));
@@ -240,12 +306,13 @@ function login(sendResponse) {//error 1x
 
 //=================================================================================================================================================================================request_data
 
-function getStations(sendResponse) {//error 2x
-	console.log("GSsendResponse:"); console.log(sendResponse);
+function getStations(sendResponse) {//sendResponse is a native function which sends chrome message response to origional sender (such as popup.html)
+	if(!sendResponse){sendResponse = function(){};}
+	if(_DEBUG_){console.log("GSsendResponse:"); console.log(sendResponse);}
 	(function (sr1) {
-		console.log("GSsr1:"); console.log(sr1);
+		if(_DEBUG_){console.log("GSsr1:"); console.log(sr1);}
 		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, (function (sr2) {
-			console.log("GSsr2:"); console.log(sr2);
+			if(_DEBUG_){console.log("GSsr2:"); console.log(sr2);}
 			return function (cookie) {
 				if (_stations == null) {
 					_stations = [];
@@ -258,21 +325,21 @@ function getStations(sendResponse) {//error 2x
 				];
 				httpPostAsync("https://www.pandora.com/api/v1/station/getStations", body, requestHeaderAttributes,
 					(function (sr) {
-						console.log("GSsrInner1:"); console.log(sr);
+						if(_DEBUG_){console.log("GSsrInner1:"); console.log(sr);}
 						return function (response) {
-							console.log("_stations :"); console.log(_stations );
+							if(_DEBUG_){console.log("_stations :"); console.log(_stations );}
 							_stations = JSON.parse(response).stations;
 							STATUS_.OPEN_ = true;
-							console.log("SendResponseNow1!",sr);
+							if(_DEBUG_){console.log("SendResponseNow1!",sr);}
 							sr(STATUS_);
 						}
 					})(sr2),
 					(function (sr) {
-						console.log("GSsrInner2:"); console.log(sr);
+						if(_DEBUG_){console.log("GSsrInner2:"); console.log(sr);}
 						return function () {
 							STATUS_.OPEN_ = false;
 							STATUS_.ERROR_ = "20";
-							console.log("SendResponseNow2!",sr);
+							if(_DEBUG_){console.log("SendResponseNow2!",sr);}
 							sr(STATUS_);
 						}
 					})(sr2)
@@ -317,10 +384,10 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 	if (!oldID || isNaN(oldID)) {
 		oldID = stationID;
 	}
-	console.log("station info:"); console.log(stationID); console.log(_stations);
-	console.log("_currentSong");console.log(_currentSong);
+	if(_DEBUG_){console.log("station info:"); console.log(stationID); console.log(_stations);}
+	if(_DEBUG_){console.log("_currentSong");console.log(_currentSong);}
 	if (!jQuery.isEmptyObject(_currentSong)) {
-		console.log("1");
+		if(_DEBUG_){console.log("1");}
 		if (!_pastSongs[stationID]) {
 			_pastSongs[stationID] = [];
 		}
@@ -343,7 +410,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 		if(!paused) { _audio.play();}
 	}
 	else if (!_songLists[stationID] || !_songLists[stationID].length) {
-		console.log("2");
+		if(_DEBUG_){console.log("2");}
 		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
 				if(cookie == null){
 					chrome.cookies.set(_cookie, (function (sid){return function (cookie) {
@@ -358,7 +425,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 			});
 	}
 	else {
-		console.log("3");
+		if(_DEBUG_){console.log("3");}
 		_currentSong = _songLists[stationID].shift();
 		_audio.setAttribute('src', _currentSong.audioURL);
 		_audio.volume = STATUS_.VOLUME_;
@@ -390,12 +457,12 @@ function prevSong(stationID) {//error 5x-??????
 
 function _utility_AddNextSong(statID){
 	addSongs(statID, function () {
-		console.log("5");
-		console.log("_songLists");console.log(_songLists);
-		console.log("statID");console.log(statID);
+		if(_DEBUG_){console.log("5");}
+		if(_DEBUG_){console.log("_songLists");console.log(_songLists);}
+		if(_DEBUG_){console.log("statID");console.log(statID);}
 		_currentSong = _songLists[statID].shift();
-		console.log("_songLists");console.log(_songLists);
-		console.log("_currentSong");console.log(_currentSong);
+		if(_DEBUG_){console.log("_songLists");console.log(_songLists);}
+		if(_DEBUG_){console.log("_currentSong");console.log(_currentSong);}
 		_audio.setAttribute('src', _currentSong.audioURL);
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
@@ -413,14 +480,14 @@ function closePieratora(power) {
 }
 
 function tryStartAudio() {
-	console.log("in try start");
-	console.log("STATUS_.LOGGED_");console.log(STATUS_.LOGGED_);
+	if(_DEBUG_){console.log("in try start");}
+	if(_DEBUG_){console.log("STATUS_.LOGGED_");console.log(STATUS_.LOGGED_);}
 	if (STATUS_.LOGGED_) {
-		console.log("_stationId");console.log(_stationId);
+		if(_DEBUG_){console.log("_stationId");console.log(_stationId);}
 		nextSong(_stationId);
-		console.log("_stationId");console.log(_stationId);
-		console.log("_trystart _currentSong"); console.log(_currentSong);
-		return _currentSong;
+		if(_DEBUG_){console.log("_stationId");console.log(_stationId);}
+		if(_DEBUG_){console.log("_trystart _currentSong"); console.log(_currentSong);}
+		//return _currentSong;//un-needed?
 	}
 }
 
@@ -433,13 +500,13 @@ function stopAudio() {
 }
 
 function mutePieratora(power) {
-	console.log("mutemode");console.log(power);
+	if(_DEBUG_){console.log("mutemode");console.log(power);}
 	_audio.muted = power;
-	console.log(_audio.muted);
+	if(_DEBUG_){console.log(_audio.muted);}
 }
 
 function startSong() {
-	console.log("[startSong]|_stationId:", _stationId);
+	if(_DEBUG_){console.log("[startSong]|_stationId:", _stationId);}
 	nextSong(_stationId, false, false, true);
 }
 
@@ -449,10 +516,10 @@ function replaySong() {
 
 function playSong() {
 	if(isNaN(_audio.duration)){
-		console.log("TRYSTART!!!!!!!!");
+		if(_DEBUG_){console.log("TRYSTART!!!!!!!!");}
 		tryStartAudio();
 	}
-	console.log("play!!!!!!!!");
+	if(_DEBUG_){console.log("play!!!!!!!!");}
 	_audio.play();
 }
 
@@ -468,6 +535,6 @@ function download(song) {
 		});
 	}
 	else {
-		console.log("DOWNLOAD FAILURE!!!!!");
+		if(_DEBUG_){console.log("DOWNLOAD FAILURE!!!!!");}
 	}
 }
