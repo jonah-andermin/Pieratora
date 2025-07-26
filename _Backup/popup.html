@@ -112,6 +112,13 @@
 		button:focus {
 			outline:0;
 		}
+		.hoverButton:hover {
+			border-radius: 13px;
+			border: 2px solid rgba(255, 255, 255, 0.8);
+		}
+		.padded1 {
+			padding:1px;
+		}
 		.whiteShadowed:hover {
 			text-shadow: -0.6px -0.6px 15px #ffffff, -0.6px 0.4px 15px #ffffff, -0.6px 1.4px 15px #ffffff, 0.4px -0.6px 15px #ffffff, 0.4px 0.4px 15px #ffffff, 0.4px 1.4px 15px #ffffff, 1.4px -0.6px 15px #ffffff, 1.4px 0.4px 15px #ffffff, 1.4px 1.4px 15px #ffffff;
 		}
@@ -330,7 +337,7 @@
 	<script src="popup.js"></script>
 </head>
 <body class="css3gradient">
-	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink noSelect">Select a Station</span></div>
+	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink noSelect hoverButton padded1">Select a Station</span></div>
 	<div id="StationDropped" class="ContextMenu" style="display:none">
 		<a id="alog1" href="#" target="_blank" class="shadowedObj noSelect" style='display:block'>Whoops! You Aren't Logged In!</a>
 		<a id="alog2" href="#" target="_blank" class="shadowedObj noSelect" style='display:block'>Click Any of These to Log In!</a>

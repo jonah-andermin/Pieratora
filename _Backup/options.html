@@ -3,6 +3,10 @@
 	<head>
 		<title>Pieratora Options</title>
 		<style type="text/css">
+			html{
+				height: 100%;
+				width: 100%;
+			}
 			.css3gradient {
 				background-color: #000000;
 				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#000000, endColorstr=#ff7200);
@@ -15,19 +19,29 @@
 				background-repeat: repeat-x;
 				background: linear-gradient(135deg, #000000 5%, #ff7200 64%,#ffffff 95%);
 			}
+			.comboBox{
+				margin-left: 5px;
+				margin-right: 5px;
+			}
+			.spaced{
+				margin-top: 5px;
+			}
+			.spaced2{
+				margin-top: 10px;
+			}
 			.topLeft {
 				top: 10px;
 				left: 10px;
 			}
 			.transparent {
-				background-color: rgba(0,0,0,0.8);
+				background-color: rgba(0,0,0,0.88);
 			}
 			.panel {
 				display: inline-block;
 				height: 230;
 				width: 320;
 				padding: 0px 35px 35px 35px;
-				margin: 10px 10px 10px 10px;
+				margin: 10px;
 			}
 			.dragPanel {
 				position: fixed;
@@ -40,16 +54,18 @@
 				width: inherit;
 				height: 25px;
 				cursor: move;
+				display: flex;
+				justify-content: center;
+				line-height: 25px;//equal to height
+				font-weight: bolder;
+			}
+			.dragPanelHeader p {
+				text-align: center;
+				font-weight: bolder;
 			}
 			.overflowing {
 				overflow: hidden;
 				white-space: nowrap;
-			}
-			html{
-				height: 100%;
-				width: 100%;
-			}
-			body{
 			}
 			p, .shadowedObj {
 				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
@@ -89,14 +105,40 @@
 			.checkButton:hover {
 				border: 3px solid rgba(255, 255, 255, 0.8);
 			}
-			#show, #hide{
+			.show_hide {
 				min-width: 50px;
 				cursor: pointer;
 			}
-			#save {
+			.unWidth {
+				width: 222px;
+			}
+			.zWidth {
+				width: 40px;
+			}
+			.centered {
+				display: block;    
+				margin-left: auto;
+				margin-right: auto;
+			}
+			.pointered {
 				cursor: pointer;
 			}
-			#checkboxLabel {
+			.invertFlash { 
+				animation: toInvert 4s infinite;
+			}
+			.min_max {
+				position:absolute;
+				cursor: pointer;
+				right: 1px;
+				top: 1px;
+			}
+			.min_max:hover {
+				border: 1px solid rgba(255, 255, 255, 0.8);
+				border-radius: 15px;
+				right: 0px;
+				top: 0px;				
+			}
+			#checkboxLabel, #new_checkboxLabel {
 				display: inline-block;
 				width: 110px;
 			}
@@ -140,59 +182,93 @@
 			}
 			#dragDiv1 {
 				z-index: 2;
-				left: 10px;
-				top: 210px;
+				left: 5px;
+				top: 10px;
 			}
 			#dragDiv1:hover {
 				z-index: 10;
 			}
-			#status {
+			#status, #new_status {
 				white-space: pre;
 			}
 			#dragDiv2 {
-				left: 500px;
-				top: 210px;
+				left: 655px;
+				top: 10px;
 				z-index: 1;
 			}
 			#dragDiv2:hover {
 				z-index: 10;
 			}
-
+			#new_status {
+				white-space: pre;
+			}
+			#dragDiv3 {
+				left: 315px;
+				top: 10px;
+				z-index: 1;
+			}
+			#dragDiv3:hover {
+				z-index: 10;
+			}
+			@keyframes toInvert {
+				0%	{ -webkit-filter: invert(0%); }
+				50%	{ -webkit-filter: invert(100%); }
+				100%	{ -webkit-filter: invert(0%); }
+			}
+			@keyframes blinking {
+				0%{
+					color: #000000;
+				}
+				50%{
+					color: #ffffff;	
+				}
+				100%{
+					color: #000000;	
+				}
+      			}
+			@keyframes nan_NONE{ 
+			}
+			.blink {
+				/* NAME | TIME | ITERATION */
+				animation: blinking 2s infinite;
+			}
+			.noBlink {
+				animation: nan_NONE;
+			}
 		</style>
 		<script src="options.js"></script>
 	</head>
 	<body class="css3gradient overflowing">
 		<div id="DlButtonWrap">
-			<button type="button" id="DlButton">Download!</button>
+			<button type="button" id="DlButton" title="Download The Currently Playing Song!">Download!</button>
 		</div> 
 <!--=====================================================Drag Panel Login=====================================================================-->
 		<div class="transparent panel dragPanel overflowing" id="dragDiv1">
-			<div class="dragPanelHeader" id="dragDiv1_Header"></div>
+			<div class="dragPanelHeader" id="dragDiv1_Header" title="Pandora Login"></div>
 			<div><p class="title noSelect" style="white-space: nowrap;">Pandora Login</p></div>
 			<div>
-				<p class="label noSelect">Username/Email:</p>
+				<p class="label noSelect">Email Address:</p>
 				<div>
-					<input id="user" type="email" autofocus
-						   placeholder="UserName@Email.Domain" value="" autocomplete="off"/>
+					<input id="user" class="unWidth" type="email" placeholder="UserName@Email.Domain" value="" autocomplete="off"/>
 				</div>
 			</div>
 			<div>
 				<p class="label noSelect">Password:</p>
 				<div class="overflowing">
-					<input id="pass" type="password" autofocus placeholder="password" value="" autocomplete="off"/>
-					<button class="vis" type="button" id="show" style="display: inline-block">Show</button>
-					<button class="hid" type="button" id="hide" style="display: none">Hide</button>
+					<input id="pass" type="password" placeholder="password" value="" autocomplete="off"/>
+					<button class="vis show_hide" type="button" id="show" style="display: inline-block">Show</button>
+					<button class="hid show_hide" type="button" id="hide" style="display: none">Hide</button>
 				</div>
 			</div>
-			<div id="status" class="shadowedObj"></div>
-			<button id="save">Login</button>
+			<div id="status" class="shadowedObj blink"></div>
+			<button id="save" pointered>Login</button>
 			<label id="checkboxLabel" class="shadowedObj noSelect whiteShadowed checkButton"><input id="rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
 		</div>
 <!--=====================================================End Drag Panel Login=====================================================================-->
 
 <!--=====================================================Drag Panel Options=====================================================================-->
 		<div class="transparent panel dragPanel overflowing" id="dragDiv2">
-			<div class="dragPanelHeader" id="dragDiv2_Header"></div>
+			<div class="dragPanelHeader" id="dragDiv2_Header" title="Special Options!"></div>
 			<div><p class="title noSelect" style="white-space: nowrap;">Special Options!</p></div>
 			<p><a id="so1" class="whiteShadowed noSelect button">Keyboard Shortcuts</a></p>
 			<hr>
@@ -206,10 +282,45 @@
 			<hr>
 			<label id="so7" class="shadowedObj noSelect whiteShadowed checkButton"><input id="so7Check" type="checkbox" value="Auto-Download"/>Remember Volume Between Sessions</label>
 			<hr>
-			<p><a id="so8" class="whiteShadowed noSelect button">View Fresh Updates!</a></p>
+			<p><a id="so8" class="whiteShadowed noSelect button">View New Updates!</a></p>
 			<label id="so9" class="shadowedObj noSelect whiteShadowed checkButton"><input id="so9Check" type="checkbox" value="Auto-Download"/>Get Alerted About New Updates</label>
 		</div>
 <!--=====================================================End Drag Panel Options=====================================================================-->
+
+<!--=====================================================Drag Panel Create=====================================================================-->
+		<div class="transparent panel dragPanel overflowing" id="dragDiv3">
+			<div class="dragPanelHeader" id="dragDiv3_Header" title="Create New Pandora Account"></div>
+			<div><p class="title noSelect" style="white-space: nowrap; text-align: center;">Create New<br>Pandora Account</p></div>
+			<div>
+				<p class="label noSelect">Email Address:</p>
+				<div>
+					<input id="new_user" class="unWidth" type="email" placeholder="UserName@Email.Domain" value="" autocomplete="off"/>
+				</div>
+			</div>
+			<div>
+				<p class="label noSelect">Password:</p>
+				<div class="overflowing">
+					<input id="new_pass" type="password" placeholder="password" value="" autocomplete="off"/>
+					<button class="vis show_hide" type="button" id="new_show" style="display: inline-block">Show</button>
+					<button class="hid show_hide" type="button" id="new_hide" style="display: none">Hide</button>
+				</div>
+			</div>
+			<div class="spaced2">
+				<span class="shadowedObj noSelect">
+					Birth Year:<select class="comboBox" id="new_year"></select>
+					Gender:<select class="comboBox" id="new_gender"><option value="FEMALE">Female</option><option value="MALE">Male</option></select>
+				</span>
+			</div>
+			<div class="spaced">
+				<span class="shadowedObj noSelect">
+					Zip-Code: <input id="new_zip" class="zWidth" type="text" inputmode="numeric" maxlength="5" placeholder="#####" value="" autocomplete="off"/>
+					<label id="new_checkboxLabel" class="shadowedObj noSelect whiteShadowed checkButton spaced"><input id="new_rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
+				</span>
+			</div>
+			<div id="new_status" class="shadowedObj blink"></div>
+			<span><button id="create_account" class="spaced centered pointered">Create New Account</button></span>
+		</div>
+<!--=====================================================End Drag Panel Create=====================================================================-->
 		
 	</body>
 </html>

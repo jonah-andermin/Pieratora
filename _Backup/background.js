@@ -89,6 +89,7 @@ var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLU
 var user = NaN;
 var pass = NaN;
 var _loginData = {};
+var _anonData = {};
 var _stations = [];
 var _songLists = {};
 var _pastSongs = {};
@@ -100,6 +101,7 @@ var _password = false;
 var _csrf = null;
 var _cookie = null;
 var _allowCure = false;
+var _volumeTimeout;
 
 //init Audio Object//////////////////////////////////////////////////////////////////////////////
 var _audio = document.createElement("audio"); 
@@ -116,6 +118,10 @@ _audio.onerror = function() {
 chrome.storage.sync.get({ rememberVolume: false, volume: 100 }, function (items) { if(items.rememberVolume){ STATUS_.VOLUME_ = _audio.volume = items.volume } });
 //end Audio Init//////////////////////////////////////////////////////////////////////////////////
 
+//init storage variables//////////////////////////////////////////////////////////////////////////
+chrome.storage.sync.get( {rightClickDownload: false}, setContextMenu);
+//end init storage variables//////////////////////////////////////////////////////////////////////
+
 chrome.commands.onCommand.addListener(function(command) {
 	switch(command) {
 		case "play-song":
@@ -127,11 +133,9 @@ chrome.commands.onCommand.addListener(function(command) {
 			}
 			break;
 		case "pause-song":
+			pauseSong();
 			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
 				login(function(status){if(STATUS_.OPEN_ && STATUS_.LOGGED_){pauseSong();}});
-			}
-			else {
-				pauseSong();
 			}
 			break;
 		case "next-song":
@@ -164,6 +168,12 @@ chrome.commands.onCommand.addListener(function(command) {
 		case "download-current-song":
 			if(_currentSong.audioURL){ download(_currentSong); }
 			break;
+		case "give-thumb-up":
+			give_thumb_up();
+			break;
+		case "give-thumb-down":
+			give_thumb_down();
+			break;
 		default:
 			if(_DEBUG_){console.log('Command[unsupported]:', command);}
 }
@@ -181,6 +191,10 @@ function sendData(){
 	chrome.runtime.sendMessage({ message: "_INFO", song: _currentSong, station: _currentStation, status: STATUS_ });
 }
 
+function sendError(){
+	chrome.runtime.sendMessage({ message: "_ERROR", song: _currentSong, station: _currentStation, status: STATUS_ });
+}
+
 function startBackend(callback) {
 	if(!callback){callback = function(){};}
 	var xmlHttp = new XMLHttpRequest();
@@ -190,6 +204,7 @@ function startBackend(callback) {
 				if(_DEBUG_){console.log("callbackCookie");console.log(cookie);}
 				_csrf = cookie.value;
 				_cookie = cookie;
+				if(_cookie.hostOnly){delete _cookie.hostOnly;}//fix playback failure from hostonly cookie??(see cookie.set.txt error)
 			});
 			callback();
         	}
@@ -202,6 +217,14 @@ function getCookie(){
 	if(_DEBUG_){console.log("csrfGETCOOKIE:");console.log(_csrf);}
 	return (_csrf) || (_cookie && _cookie.value) || document.cookie.substring(document.cookie.indexOf("csrftoken=")).substring(10,document.cookie.substring(document.cookie.indexOf("csrftoken=")).indexOf(";")) || cookieNotFound();
 }
+
+function cookieNotFound(){
+	sendError();
+	chrome.runtime.lastError={message:"COOKIE_NOT_FOUND"};
+	console.log("COOKIE_NOT_FOUND");
+	return STATUS_.ERROR_ = "COOKIE_NOT_FOUND";
+	
+}
 ///////////////////////////////////////START STUFF!!!
 startBackend();
 ///////////////////////////////////////
@@ -211,6 +234,7 @@ chrome.runtime.onMessage.addListener(
 		if(_DEBUG_){console.log("request:"); console.log(request);}
 		if (!request || !request.request) {
 			STATUS_.ERROR_ = "MALFORMED_REQUEST";
+			sendError();
 			sendResponse(STATUS_);
 			return;
 		}
@@ -220,6 +244,7 @@ chrome.runtime.onMessage.addListener(
 			STATUS_.ERROR_ = false;
 			if(request.options){
 				STATUS_.LOGGED_ = false;
+				startBackend();
 			}
 			if (!STATUS_.LOGGED_) {
 				try {
@@ -235,10 +260,12 @@ chrome.runtime.onMessage.addListener(
 				catch (e) {
 					if(_DEBUG_){console.log("_LOGIN_ERROR:"), console.log(e);}
 					STATUS_.ERROR_ = "-10";
+					sendError();
 				}
 			}
 			else {
 				STATUS_.ERROR_ = "-11";
+				sendError();
 			}
 			break;
 		case "_GET_STATIONS":
@@ -249,6 +276,7 @@ chrome.runtime.onMessage.addListener(
 			}
 			else {
 				STATUS_.ERROR_ = "-20";
+				sendError();
 			}
 			break;
 		case "_GET_CURRENT_STATION":
@@ -259,6 +287,7 @@ chrome.runtime.onMessage.addListener(
 			}
 			else {
 				STATUS_.ERROR_ = "-21";
+				sendError();
 			}
 			break;
 		case "_SKIP":
@@ -272,6 +301,7 @@ chrome.runtime.onMessage.addListener(
 			}
 			else {
 				STATUS_.ERROR_ = "-30";
+				sendError();
 			}
 			break;
 		case "_PREV":
@@ -284,6 +314,7 @@ chrome.runtime.onMessage.addListener(
 			}
 			else {
 				STATUS_.ERROR_ = "-31";
+				sendError();
 			}
 			break;
 		case "_STATION_CHANGE":
@@ -314,7 +345,7 @@ chrome.runtime.onMessage.addListener(
 		case "_VOLUME":
 			STATUS_.VOLUME_ = request.volume / 100;
 			_audio.volume = STATUS_.VOLUME_;
-			chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
+			saveVolume();
 			break;
 		case "_DOWNLOAD":
 			download(_currentSong);
@@ -338,6 +369,13 @@ chrome.runtime.onMessage.addListener(
 			sendResponse({ TYPE: "RATING", RATING_: _currentSong.rating });
 			return;
 			break;
+		case "_NEW_ACCOUNT":
+			STATUS_.ERROR_ = false;
+			createAccount(request.body, _utility_loginNew, sendResponse);
+			return true;
+			break;
+		case "_CONTEXTMENU":
+			enableContextMenu();
 		default:
 			if(_DEBUG_){ console.log("request-not-implemented:", request); }
 			break;
@@ -400,7 +438,7 @@ function login(sendResponse) {//sendResponse is a function passed along to inner
 				var body = { "existingAuthToken": _loginData && _loginData.authToken || null, "username": _username, "password": _password, "keepLoggedIn": true }
 				var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
 				{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
-				{ 'type': 'X-CsrfToken', 'value': cookie.value || getCookie()}// added "cookie.value || " to prevent rare login failure, cause unknown
+				{ 'type': 'X-CsrfToken', 'value': cookie && cookie.value || getCookie()}// added "cookie.value || " to prevent rare login failure, cause unknown
 				];
 				httpPostAsync("https://www.pandora.com/api/v1/auth/login", body, requestHeaderAttributes,
 					(function (sr) {
@@ -413,10 +451,13 @@ function login(sendResponse) {//sendResponse is a function passed along to inner
 					})(sr2),
 					(function (sr) {
 						if(_DEBUG_){console.log("sr002:"); console.log(sendResponse);}
-						return function () {
+						return function (response) {
 							STATUS_.LOGGED_ = false;
 							STATUS_.ERROR_ = "10";
+							sendError();
+							STATUS_.message = response;
 							sr(STATUS_);
+							STATUS_.message = "";
 						};
 					})(sr2),
 					true
@@ -424,6 +465,23 @@ function login(sendResponse) {//sendResponse is a function passed along to inner
 			}
 		})(sr1));
 	})(sendResponse);
+}
+
+//=================================================================================================================================================================================Anonymous Login
+
+function anonLogin(func) {
+	if(!func){func = function(){};}
+	var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
+		{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
+		{ 'type': 'X-CsrfToken', 'value': getCookie()}
+	];
+	httpPostAsync("https://www.pandora.com/api/v1/auth/anonymousLogin", {}, requestHeaderAttributes,
+		function (response) {
+			_anonData = JSON.parse(response);
+			func();
+		},
+		function(){}, true
+	);	
 }
 
 //=================================================================================================================================================================================request_data
@@ -461,6 +519,7 @@ function getStations(sendResponse) {//sendResponse is a native function which se
 						return function () {
 							STATUS_.OPEN_ = false;
 							STATUS_.ERROR_ = "20";
+							sendError();
 							if(_DEBUG_){console.log("SendResponseNow2!",sr);}
 							sr(STATUS_);
 						}
@@ -471,6 +530,23 @@ function getStations(sendResponse) {//sendResponse is a native function which se
 	})(sendResponse);
 }
 
+function Search(query, types, func) {
+	if(!types){types = ["AL","AR","CO","TR","SF","PL","ST","PC","PE"];}
+	if(!func){func = function(){};}
+	var body = {query:query,types:types,listener:null,start:0,count:20,annotate:true,searchTime:0,annotationRecipe:"CLASS_OF_2019"};
+	var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
+		{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
+		{ 'type': 'X-csrftoken', 'value': getCookie()},
+        { 'type': 'x-authtoken', 'value': _loginData.authToken}
+	];
+	httpPostAsync("https://www.pandora.com/api/v3/sod/search", body, requestHeaderAttributes,
+		function (response) {
+			console.log("RESPONSE_TO_TEST: ________________________", JSON.parse(response));
+			func();
+		},
+		null, true
+	);	
+}
 
 function addSongs(stationID, func) {//error 3x
 	if (!func) {
@@ -538,7 +614,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 		}
 		if(!paused) {
 			var playPromise = _audio.play();
-			playPromise.catch(() => { console.log("PLAY@nextSong[0] failure, maybe song was cured?"); });
+			playPromise.catch(() => { if(_DEBUG_){console.log("PLAY@nextSong[0] failure, maybe song was cured?");} });
 		}
 	}
 	else if (!_songLists[stationID] || !_songLists[stationID].length) {
@@ -567,7 +643,7 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 		}
 		_audio.volume = STATUS_.VOLUME_;
 		var playPromise = _audio.play();
-		playPromise.catch(() => { console.log("PLAY@nextSong[1] failure, maybe song was cured?"); });
+		playPromise.catch(() => { if(_DEBUG_){console.log("PLAY@nextSong[1] failure, maybe song was cured?");} });
 	}
 	autoDownload();
 	cureCurrent(true);
@@ -598,9 +674,59 @@ function prevSong(stationID) {//error 5x-??????
 	}
 	_audio.volume = STATUS_.VOLUME_;
 	var playPromise = _audio.play();
-	playPromise.catch(() => { console.log("PLAY@prevSong failure, maybe song was cured?"); });
+	playPromise.catch(() => { if(_DEBUG_){console.log("PLAY@prevSong failure, maybe song was cured?");} });
 	autoDownload();
 	cureCurrent(false);
+}
+
+//==================================================================================================================================================================================
+
+function createAccount(body, func, sendResponse){
+	if (!func) {
+		func = function () { };
+	}
+	if (!sendResponse) {
+		sendResponse = function () { };
+	}
+	anonLogin(function(inner_func, sr){
+		return function(){
+			var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
+				{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
+				{ 'type': 'X-CsrfToken', 'value': getCookie()},
+				{ 'type': 'X-AuthToken', 'value': _anonData.authToken }
+			];
+			httpPostAsync("https://www.pandora.com/api/v1/listener/register", body, requestHeaderAttributes,
+				function (response){
+					inner_func(response, sr);
+				}, 
+				function(response){ 
+					if(_DEBUG_){console.log("createAccountFAILURE:",response);}
+					STATUS_.LOGGED_ = false;
+					STATUS_.ERROR_ = "30";
+					sendError();
+					STATUS_.message = response;
+					sr(STATUS_);
+					STATUS_.message = "";
+				}, true
+			);
+		};
+	}(func, sendResponse));
+}
+
+function enableContextMenu(granted){
+	chrome.contextMenus.create({ id: 'drcmi', title: 'Download Current Pieratora song!', contexts: ['all'], onclick: function(){download(_currentSong);} });
+}
+
+function setContextMenu(items){
+	if(items.rightClickDownload){
+		chrome.contextMenus.create({ id: 'drcmi', title: 'Download Current Pieratora song!', contexts: ['all'], onclick: function(){download(_currentSong);} });
+	}
+}
+
+function _utility_loginNew(response, sr){
+	_loginData = JSON.parse(response);
+	STATUS_.LOGGED_ = true;
+	getStations(sr);
 }
 
 function _utility_AddNextSong(statID){
@@ -620,13 +746,13 @@ function _utility_AddNextSong(statID){
 		}
 		_audio.volume = STATUS_.VOLUME_;
 		var playPromise = _audio.play();
-		playPromise.catch(() => { console.log("PLAY@_utility_AddNextSong failure, maybe song was cured?"); });
+		playPromise.catch(() => { if(_DEBUG_){console.log("PLAY@_utility_AddNextSong failure, maybe song was cured?");} });
 		autoDownload();
 		sendData();
 	});
 }
 
-function tryStartAudio() {
+function tryStartAudio(noRetry) {
 	if(_DEBUG_){console.log("in try start");}
 	if(_DEBUG_){console.log("STATUS_.LOGGED_");console.log(STATUS_.LOGGED_);}
 	if (STATUS_.LOGGED_) {
@@ -634,6 +760,15 @@ function tryStartAudio() {
 		nextSong(_stationId);
 		if(_DEBUG_){console.log("_stationId");console.log(_stationId);}
 		if(_DEBUG_){console.log("_trystart _currentSong"); console.log(_currentSong);}
+	}
+	else{
+		if(!noRetry){
+			startBackend(function(){
+				login(function(){
+					tryStartAudio(true);
+				});
+			});
+		}
 	}
 }
 
@@ -660,7 +795,7 @@ function playSong() {
 	}
 	if(_DEBUG_){console.log("play!!!!!!!!");}
 	var playPromise = _audio.play();
-	playPromise.catch(() => { console.log("PLAY@playSong failure, maybe song was cured?"); });
+	playPromise.catch(() => { if(_DEBUG_){console.log("PLAY@playSong failure, maybe song was cured?");} });
 	autoDownload();
 }
 
@@ -672,20 +807,30 @@ function volUp() {
 	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ += 0.01)>1)?1:STATUS_.VOLUME_;
 	_audio.volume = STATUS_.VOLUME_;
 	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
-	chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
 }
 
 function volDown() {
 	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ -= 0.01)<0)?0:STATUS_.VOLUME_;
 	_audio.volume = STATUS_.VOLUME_;
 	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
-	chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
+}
+
+function saveVolume(){
+	chrome.storage.local.set({ volume: STATUS_.VOLUME_ });
+	clearTimeout(volumeTimeout);
+	volumeTimeout= setTimeout(function() {
+ chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
+ }, 60000);
 }
 
 function remoteMute() {
 	chrome.runtime.sendMessage({ message: "MUTE_" });
 	_audio.muted = !_audio.muted;
 	STATUS_.MUTED_ = _audio.muted;
+}
+
+function sendRating() {
+	chrome.runtime.sendMessage({ message: "RATING_", rating: _currentSong.rating });
 }
 
 function download(song) {
@@ -754,6 +899,18 @@ function removeCurrent(){
 	nextSong(_stationId);
 }
 
+function give_thumb_up(){
+	var func = function(){sendRating();}
+	add_thumb(true, func);
+	_currentSong.rating = 1;
+}
+
+function give_thumb_down(){
+	var func = function(){sendRating();nextSong(_stationId);sendData();}
+	add_thumb(false, func);
+	_currentSong.rating = -1;
+}
+
 function toggle_thumb_up(){
 	if(_currentSong.rating == 1) {
 		remove_thumb(true);
@@ -787,7 +944,7 @@ function add_thumb(isThumbUp, func){
 	httpPostAsync("https://www.pandora.com/api/v1/station/addFeedback", body, requestHeaderAttributes,
 		function(f){ return function (response) {
 			if(f){f();}
-			if(_DEBUG_){ console.log("THUMB [" + (isThumbUp)?"UP":"DOWN" + "] RESPONSE!!!!!!: ", response); }
+			if(_DEBUG_){ console.log("THUMB [" + ((isThumbUp)?"UP":"DOWN") + "] RESPONSE!!!!!!: ", response); }
 		};}(func)
 	);
 }
@@ -802,7 +959,7 @@ function remove_thumb(isThumbUp, func){
 	httpPostAsync("https://www.pandora.com/api/v1/station/deleteFeedback", body, requestHeaderAttributes,
 		function(f){ return function (response) {
 			if(f){f();}
-			if(_DEBUG_){ console.log("REMOVE THUMB [" + (isThumbUp)?"UP":"DOWN" + "] RESPONSE!!!!!!: ", response); }
+			if(_DEBUG_){ console.log("REMOVE THUMB [" + ((isThumbUp)?"UP":"DOWN") + "] RESPONSE!!!!!!: ", response); }
 		};}(func)
 	);
 }

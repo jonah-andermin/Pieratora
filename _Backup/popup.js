@@ -14,6 +14,9 @@ chrome.runtime.onMessage.addListener(
 		else if(request.message == "MUTE_") {
 			remote_sound_button();
 		}
+		else if(request.message == "RATING_") {
+			applyThumbRating(request.rating);
+		}
 		else if (request.message == "_INFO") {
 			if(request.song.songTitle && request.song.artistName) {
 				if(request.song.songTitle.length > 30) {

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Pieratora",
-	"version": "1.1.9017",
+	"version": "1.2.0000",
 	"permissions": [ "cookies", "storage", "https://www.pandora.com/", "https://pandora.com/" ],
 	"optional_permissions": [ "background", "contextMenus", "downloads" ],
 	"browser_action": {
@@ -58,6 +58,12 @@
 		},
 		"download-current-song": {
 			"description": "Download The Currently Playing Song"
+		},
+		"give-thumb-up": {
+			"description": "Give Current Song Thumb-Up (Activates, Rather Than Toggling)"
+		},
+		"give-thumb-down": {
+			"description": "Give Current Song Thumb-Down (Activates, Rather Than Toggling)"
 		}
         },
 	"content_security_policy": "script-src 'self'; object-src 'self'",
