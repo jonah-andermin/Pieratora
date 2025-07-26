@@ -123,13 +123,7 @@ function so2() {
 function so3(e) {
 	if(e.target.tagName == "LABEL"){ return; }
 	chrome.storage.sync.set( {rightClickDownload: document.getElementById("so3Check").checked} );
-	chrome.contextMenus.create({
-    		title: 'test',
-    		onclick: function(e){
-        		console.log(e)
-    		}
-
-	}, function(){})
+	chrome.permissions.request({ permissions: ['contextMenus'] }, toggle_contextMenu );
 }
 
 function so4(e) {
@@ -141,9 +135,7 @@ function so4(e) {
 		chrome.permissions.request({ permissions: ['background'] }, allow_background );
 	}
 	else{
-		chrome.permissions.remove({ permissions: ['background'] }, function(removed){ 
-			console.log("BackgroundPermissionRemoved:",removed); 
-		});
+		chrome.permissions.remove({ permissions: ['background'] }, function(removed){ console.log("BackgroundPermissionRemoved:",removed); });
 	}
 	chrome.storage.sync.set( {continuePlaying: document.getElementById("so4Check").checked} );
 }
@@ -162,6 +154,17 @@ function so6() {
 
 function so7() {
 	chrome.storage.sync.set( {rememberVolume: document.getElementById("so7Check").checked} );
+}
+
+function toggle_contextMenu(granted) {
+	if(!granted){ document.getElementById("so3Check").checked = false; if(_DEBUG_){ console.log("ContexMenuPermissionGranted:", granted); } return; }
+	if(document.getElementById("so3Check").checked){
+		chrome.contextMenus.create({ id: 'drcmi', title: 'Download Current Pieratora song!', contexts: ['all'], onclick: downloadSong });
+	}
+	else{
+		chrome.contextMenus.remove('drcmi');
+		chrome.permissions.remove({ permissions: ['contextMenus'] }, function(removed){ console.log("BackgroundPermissionRemoved:",removed); });
+	}
 }
 
 function allow_background(granted)
