@@ -2,3 +2,4 @@ notes*
 *.txt
 OLD_*
 *.old
+!CHANGES.txt

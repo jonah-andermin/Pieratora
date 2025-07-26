@@ -1,0 +1,10 @@
+Added Thumb Up/Down Keyboard Shortcuts
+Fixed Bug that rarely prevented Volume syncing between sessions (with setting enabled)
+Finished Volume syncing between sessions option
+added account creation (on options page)
+minor visual changes on options page
+Lowered volume adjustment with shortcut keys from 5% to 1% per keypress
+options prevent headers from being dragged off screen
+options minimize/maximize button
+fixed bug with right-click downloads
+login/account dreation failure feedback
