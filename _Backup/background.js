@@ -316,6 +316,16 @@ chrome.runtime.onMessage.addListener(
 			sendData();
 			return;
 			break;
+		case "_T_UP":
+			toggle_thumb_up();
+			sendResponse({ TYPE: "RATING", RATING_: _currentSong.rating });
+			return;
+			break;
+		case "_T_DOWN":
+			toggle_thumb_down();
+			sendResponse({ TYPE: "RATING", RATING_: _currentSong.rating });
+			return;
+			break;
 		default:
 			if(_DEBUG_){ console.log("request-not-implemented:", request); }
 			break;
@@ -710,4 +720,57 @@ function cureCurrent(next){
 function removeCurrent(){
 	_currentSong.remove = true;
 	nextSong(_stationId);
+}
+
+function toggle_thumb_up(){
+	if(_currentSong.rating == 1) {
+		remove_thumb(true);
+		_currentSong.rating = 0;
+	}
+	else {
+		add_thumb(true);
+		_currentSong.rating = 1;
+	}
+}
+
+function toggle_thumb_down(){
+	if(_currentSong.rating == -1) {
+		remove_thumb(false);
+		_currentSong.rating = 0;
+	}
+	else {
+		var func = function(){nextSong(_stationId);sendData();}
+		add_thumb(false, func);
+		_currentSong.rating = -1;
+	}
+}
+
+function add_thumb(isThumbUp, func){
+	var body = { 'trackToken': _currentSong.trackToken, 'isPositive': isThumbUp }
+	var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
+	{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
+	{ 'type': 'X-CsrfToken', 'value': getCookie()},
+	{ 'type': 'X-AuthToken', 'value': _loginData.authToken }
+	];
+	httpPostAsync("https://www.pandora.com/api/v1/station/addFeedback", body, requestHeaderAttributes,
+		function(f){ return function (response) {
+			if(f){f();}
+			if(_DEBUG_){ console.log("THUMB [" + (isThumbUp)?"UP":"DOWN" + "] RESPONSE!!!!!!: ", response); }
+		};}(func)
+	);
+}
+
+function remove_thumb(isThumbUp, func){
+	var body = { 'trackToken': _currentSong.trackToken, 'isPositive': isThumbUp }
+	var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
+	{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
+	{ 'type': 'X-CsrfToken', 'value': getCookie()},
+	{ 'type': 'X-AuthToken', 'value': _loginData.authToken }
+	];
+	httpPostAsync("https://www.pandora.com/api/v1/station/deleteFeedback", body, requestHeaderAttributes,
+		function(f){ return function (response) {
+			if(f){f();}
+			if(_DEBUG_){ console.log("REMOVE THUMB [" + (isThumbUp)?"UP":"DOWN" + "] RESPONSE!!!!!!: ", response); }
+		};}(func)
+	);
 }

@@ -76,6 +76,7 @@ chrome.runtime.onMessage.addListener(
 			}
 			document.getElementById("thumbD").classList.remove('thumbed');
 			document.getElementById("thumbU").classList.remove('thumbed');
+			applyThumbRating(request.song.rating);
 		}
 	}
 );
@@ -159,14 +160,11 @@ function next_song() {
 }
 
 function thumb_down() {
-	chrome.runtime.sendMessage({ request: "_T_DOWN" });
-	chrome.runtime.sendMessage({ request: "_REMOVE" });
-	document.getElementById("thumbD").classList.toggle('thumbed');
+	chrome.runtime.sendMessage({ request: "_T_DOWN" }, function(response){applyThumbRating(response.RATING_);});
 }
 
 function thumb_up() {
-	chrome.runtime.sendMessage({ request: "_T_UP" });
-	document.getElementById("thumbU").classList.toggle('thumbed');
+	chrome.runtime.sendMessage({ request: "_T_UP" }, function(response){applyThumbRating(response.RATING_);});
 }
 
 function prev_song() {
@@ -266,6 +264,23 @@ window.onload = function() {
     		e.preventDefault();
 	}, false);
 	if(debug){console.log("onload completed");}
+}
+
+function applyThumbRating(rating) {
+	switch(rating){
+	case -1:
+		document.getElementById("thumbU").classList.remove('thumbed');
+		document.getElementById("thumbD").classList.add('thumbedR');
+		break;
+	case 0:
+		document.getElementById("thumbU").classList.remove('thumbed');
+		document.getElementById("thumbD").classList.remove('thumbedR');
+		break;
+	case 1:
+		document.getElementById("thumbU").classList.add('thumbed');
+		document.getElementById("thumbD").classList.remove('thumbedR');
+		break;
+	}
 }
 
 function openOptions(){
