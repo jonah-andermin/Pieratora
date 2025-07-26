@@ -20,7 +20,7 @@
 				left: 10px;
 			}
 			.transparent {
-				background-color: rgba(0,0,0,0.5);
+				background-color: rgba(0,0,0,0.8);
 			}
 			.panel {
 				display: inline-block;
@@ -34,7 +34,7 @@
 			}
 
 			.dragPanelHeader {
-				background-color: rgba(255, 117, 0, 0.62);
+				background-color: rgba(255, 117, 0, 0.88);
 				margin-right: -35px;
 				margin-left: -35px;
 				width: inherit;
@@ -51,15 +51,43 @@
 			}
 			body{
 			}
-			p, #checkboxLabel, #status {
+			p, .shadowedObj {
 				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
 				font-weight: bold;
       			}
-			.title{
+			.whiteShadowed:hover {
+				text-shadow: -0.6px -0.6px 15px #ffffff, -0.6px 0.4px 15px #ffffff, -0.6px 1.4px 15px #ffffff, 0.4px -0.6px 15px #ffffff, 0.4px 0.4px 15px #ffffff, 0.4px 1.4px 15px #ffffff, 1.4px -0.6px 15px #ffffff, 1.4px 0.4px 15px #ffffff, 1.4px 1.4px 15px #ffffff;
+			}
+			.noSelect {
+				user-select: none;
+			}
+			.button {
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 15px;
+				heigth: 24px;
+				width: 150px;
+				margin: 2px 50px;
+				cursor: pointer;
+				border-radius: 50px;
+				background: transparent;
+    				border: 2px solid rgba(255, 255, 255, 0.8);
+			}
+			.title {
 				font-size: xx-large;
 			}
-			.label{
+			.label {
 				font-size: large;
+			}
+			.checkButton {
+				border: 3px solid rgba(255, 255, 255, 0);
+				border-radius: 13px;
+				cursor: pointer;
+				height: 24px;
+			}
+			.checkButton:hover {
+				border: 3px solid rgba(255, 255, 255, 0.8);
 			}
 			#show, #hide{
 				min-width: 50px;
@@ -67,6 +95,10 @@
 			}
 			#save {
 				cursor: pointer;
+			}
+			#checkboxLabel {
+				display: inline-block;
+				width: 110px;
 			}
 			#DlButtonWrap {
 				width: 960px;
@@ -106,41 +138,67 @@
 				//color: #ff8c00;
 				//z-index: -4;
 			}
-			#dragDiv {
+			#dragDiv1 {
 				z-index: 2;
+				left: 10px;
+				top: 210px;
+			}
+			#dragDiv1:hover {
+				z-index: 10;
 			}
 			#status {
 				white-space: pre;
 			}
+			#dragDiv2 {
+				left: 500px;
+				top: 210px;
+				z-index: 1;
+			}
+			#dragDiv2:hover {
+				z-index: 10;
+			}
 
 		</style>
+		<script src="options.js"></script>
 	</head>
 	<body class="css3gradient overflowing">
-		<div class="transparent panel dragPanel overflowing" id="dragDiv">
-			<div class="dragPanelHeader" id="dragDiv_Header"></div>
-			<div><p class="title" style="white-space: nowrap;">Pandora Login</p></div>
+		<div id="DlButtonWrap">
+			<button type="button" id="DlButton">Download!</button>
+		</div> 
+<!--=====================================================Drag Panel Login=====================================================================-->
+		<div class="transparent panel dragPanel overflowing" id="dragDiv1">
+			<div class="dragPanelHeader" id="dragDiv1_Header"></div>
+			<div><p class="title noSelect" style="white-space: nowrap;">Pandora Login</p></div>
 			<div>
-				<p class="label">Username/Email:</p>
+				<p class="label noSelect">Username/Email:</p>
 				<div>
 					<input id="user" type="email" autofocus
 						   placeholder="UserName@Email.Domain" value="" autocomplete="off"/>
 				</div>
 			</div>
 			<div>
-				<p class="label">Password:</p>
+				<p class="label noSelect">Password:</p>
 				<div class="overflowing">
 					<input id="pass" type="password" autofocus placeholder="password" value="" autocomplete="off"/>
 					<button class="vis" type="button" id="show" style="display: inline-block">Show</button>
 					<button class="hid" type="button" id="hide" style="display: none">Hide</button>
 				</div>
 			</div>
-			<div id="status"></div>
+			<div id="status" class="shadowedObj"></div>
 			<button id="save">Login</button>
-			<label id="checkboxLabel"><input id="rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
+			<label id="checkboxLabel" class="shadowedObj noSelect whiteShadowed checkButton"><input id="rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
 		</div>
-		<div id="DlButtonWrap">
-			<button type="button" id="DlButton">Download!</button>
-		</div> 
-		<script src="options.js"></script>
+<!--=====================================================End Drag Panel Login=====================================================================-->
+
+<!--=====================================================Drag Panel Options=====================================================================-->
+		<div class="transparent panel dragPanel overflowing" id="dragDiv2">
+			<div class="dragPanelHeader" id="dragDiv2_Header"></div>
+			<div><p class="title noSelect" style="white-space: nowrap;">Special Options!</p></div>
+			<p><a id="so1" class="whiteShadowed noSelect button">Keyboard Shortcuts</a></p>
+			<p><a id="so2" class="whiteShadowed noSelect button">Play In Background</a></p>
+			<label id="so3" class="shadowedObj noSelect whiteShadowed checkButton"><input id="so3Check" type="checkbox" value="Add Right-Click Download"/>Add Download Button to Right click Menu</label>
+		</div>
+<!--=====================================================End Drag Panel Options=====================================================================-->
+		
 	</body>
 </html>

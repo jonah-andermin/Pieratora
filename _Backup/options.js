@@ -18,9 +18,7 @@ function clear_options() {
     userName: '',
 	password: '',
 	remember: false
-  }, function() {
-    // Update status to let user know options were saved.
-  });
+  }, function() {});
 }
 
 function save_login() {
@@ -64,17 +62,19 @@ function setSaveCheck() {
 	}
 }
 
-// Restores select box and checkbox state using the preferences
+// Restores select box and checkbox state etc. using the preferences
 // stored in chrome.storage.
 function restore_options() {
 	chrome.storage.sync.get({
 		userName: '',
 		password: '',
-		remember: ''
+		remember: '',
+		rightClickDownload: false
 	}, function(items) {
  		document.getElementById('user').value = items.userName;
 		document.getElementById('pass').value = items.password;
 		document.getElementById('rem').checked = items.remember;
+		document.getElementById("so3Check").checked = items.rightClickDownload;
 		var save = document.getElementById('save');
 		if (items.remember){
 			save.textContent = "Save/Login"; save.value = "Save/Login";
@@ -92,7 +92,24 @@ function load() {
 	document.getElementById('show').addEventListener('click', showPass);
 	document.getElementById('hide').addEventListener('click', hidePass);
 	document.getElementById('DlButton').addEventListener('click', downloadSong);
+	document.getElementById('so1').addEventListener('click', so1);
+	document.getElementById('so2').addEventListener('click', so2);
+	document.getElementById('so3').addEventListener('click', so3);
+	dragElement(document.getElementById(('dragDiv1')));
+	dragElement(document.getElementById(('dragDiv2')));
 	restore_options();
+}
+
+function so1() {
+	chrome.tabs.create({ url: "chrome://extensions/shortcuts"});
+}
+
+function so2() {
+	chrome.tabs.create({ url: "chrome://settings/?search=Continue+running+background+apps+when+Google+Chrome+is+Closed"});
+}
+
+function so3() {
+	chrome.storage.sync.set( {rightClickDownload: document.getElementById("so3Check").checked} );
 }
 
 function showPass() {
@@ -163,9 +180,4 @@ function dragElement(element) {
 	}
 }
 
-document.addEventListener('DOMContentLoaded', load);
-document.addEventListener('DOMContentLoaded', function () {
-	dragElement(document.getElementById(('dragDiv')));
-});
-load();
-dragElement(document.getElementById(('dragDiv')));
+window.onload = load;

@@ -1,3 +1,10 @@
+//PRE-init vars
+var _DEBUG_ = true;
+var _SUPPRESSED_ = true;
+var _PERSIST = false;
+//end PRE-init vars
+
+//PRE-init Code *************************************************************************************************
 function suppress_dev_warning(info) {
 	if(!_SUPPRESSED_){return;}
 	if(info.installType == "development"){
@@ -13,10 +20,51 @@ function suppress_dev_warning(info) {
 		});
 	}
 }
-chrome.management.getSelf(suppress_dev_warning);
 
-var _DEBUG_ = true;
-var _SUPPRESSED_ = true;
+function removal(id){
+    chrome.windows.getAll(function(windowsArray){
+    if(_DEBUG_){console.log("CHECKING CLOSE!");}
+    if((!windowsArray.length) && !_PERSIST )//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
+        if(_DEBUG_){console.log("DO CLOSE!");}
+        _audio.pause();//THEN STOP PLAYING AUDIO!!!
+    });
+}
+
+function check_ext_open(callback) {
+	if (!callback) {
+		callback = function () {};
+	}
+	chrome.windows.getAll({
+		populate: true
+	}, function (windowsArray) {
+		var ext_open = false;
+		for (var i = 0; i < windowsArray.length; ++i) {
+			for (var ii = 0; ii < windowsArray[i].tabs.length; ++ii) {
+				if (windowsArray[i].tabs[ii].url == "chrome://extensions/") {
+					ext_open = true;
+					i = windowsArray.length;
+					break;
+				}
+			}
+		}
+		if (!ext_open) {
+			if(_DEBUG_){console.log("no extensions page open!!!");}
+			callback();
+		}
+		else{
+			if(_DEBUG_){console.log("Extensions page *IS* open!!!");}
+			return;
+		}
+	});
+}
+
+function suppress_on_dev(){
+	chrome.management.getSelf(suppress_dev_warning);
+}
+
+check_ext_open(suppress_on_dev);
+chrome.windows.onRemoved.addListener(removal);
+//End PRE-init Code *************************************************************************************************
 
 var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1, MUTED_: false};
 var user = NaN;
@@ -90,6 +138,8 @@ chrome.commands.onCommand.addListener(function(command) {
 			break;
 		case "toggle-muted-audio":
 			remoteMute();
+			break;
+		case "download-current-song":
 			break;
 		default:
 			if(_DEBUG_){console.log('Command[unsupported]:', command);}
@@ -243,6 +293,9 @@ chrome.runtime.onMessage.addListener(
 		}
 		else if (request.request == "_STATUS") {
 			sendData();
+		}
+		else {
+			if(_DEBUG_){ console.log("request-not-implemented:", request); }
 		}
 		sendResponse(STATUS_);
 	}

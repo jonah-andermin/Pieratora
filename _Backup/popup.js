@@ -108,17 +108,6 @@ function send_info() {
 	chrome.runtime.sendMessage({ request: "_INFO" });
 }
 
-function pan() {
-	var tabs = chrome.tabs.query({ url: "https://www.pandora.com/*" }, function (tabs) {
-		if (tabs.length < 1) {
-			chrome.tabs.create({ url: "https://www.pandora.com", index: 0, pinned: true });
-		}
-		else {
-			chrome.tabs.update(tabs[0].id, { active: true });
-		}
-	});
-}
-
 function sound_button() {
 	var btn = document.getElementById("sound_button");
 	var power = btn.src.includes("img/soundOn32.png");
@@ -184,7 +173,7 @@ function station_selector() {
 		var station = NaN;
 		for (let i=0; i<response.stations.length; i++) {  
 			station = response.stations[i];
-  			innerH+="<a href='#' class='shadowedObj' style='display:block' bgcolor='transparent' index='"+i+"'>"+station.name+"</a>";
+  			innerH+="<a href='#' class='shadowedObj noSelect' style='display:block' bgcolor='transparent' index='"+i+"'>"+station.name+"</a>";
 		}
 		document.getElementById("StationDropped").innerHTML = innerH;
 		var children = document.getElementById("StationDropped").children
@@ -259,6 +248,14 @@ window.onload = function() {
 	document.getElementById("prevS").onclick = prev_song;
 	setSongMarquee();
 	setAlbumMarquee();
+	document.addEventListener("contextmenu", function(e){
+		function callback(a, b) {
+			return function() {
+				console.log('sum = ', (a+b));
+			}
+		}
+    		e.preventDefault();
+	}, false);
 	if(debug){console.log("onload completed");}
 }
 
@@ -272,6 +269,14 @@ function setAlbumMarquee() {
 	let root = document.documentElement;
 	var temp = (document.getElementById("album_info").offsetWidth)/-3;
 	root.style.setProperty('--aCalc', temp + "px");
+}
+
+
+//chrome.storage.sync.get( {rightClickDownload: false}, rightClick {
+function rightClick(itemsOuter) {
+		if(items.rightClickDownload) {
+			
+		}
 }
 
 //Close dropdown when window clicked

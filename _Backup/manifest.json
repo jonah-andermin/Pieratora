@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
 	"name": "Pieratora",
-	"version": "1.1.9002",
-	"permissions": [ "tabs", "webRequest", "downloads", "background", "cookies", "storage", "https://www.pandora.com/", "https://pandora.com/" ],
+	"version": "1.1.9003",
+	"permissions": [ "tabs", "downloads", "background", "cookies", "storage", "https://www.pandora.com/", "https://pandora.com/" ],
 	"browser_action": {
 		"default_icon": {
 			"16": "img/icon16.png",

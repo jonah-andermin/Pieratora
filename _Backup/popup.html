@@ -74,9 +74,12 @@
 			margin: 10px;
 			white-space: nowrap;
 		}
-		p, .shadowedObj, .button {
+		p, .shadowedObj {
 			text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
 			font-weight: bold;
+		}
+		.noSelect {
+			user-select: none;
 		}
 		.img {
 			display: inline-block;
@@ -270,32 +273,32 @@
 	<script src="popup.js"></script>
 </head>
 <body class="css3gradient">
-	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink">Select a Station</span></div>
+	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink noSelect">Select a Station</span></div>
 	<div id="StationDropped" style="display:none">
-		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>Whoops! You Aren't Logged In!</a>
-		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>Click Any of These to Log In!</a>
-		<a href="/options.html" target="_blank" class="shadowedObj" style='display:block'>The Login-Box Can Be Dragged!</a>
+		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>Whoops! You Aren't Logged In!</a>
+		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>Click Any of These to Log In!</a>
+		<a href="/options.html" target="_blank" class="shadowedObj noSelect" style='display:block'>The Login-Box Can Be Dragged!</a>
 	</div>
-	<p id="station_info">No Station Selected</p>
+	<p id="station_info" class="noSelect">No Station Selected</p>
 	<div class="idiv">
-		<span id="prevS" title="Previous Song" class="left clickable shadowedObj whiteShadowed">&#x21A9</span>
-		<span id="nextS" title="Next Song" class="right clickable shadowedObj whiteShadowed">&#x21AA</span>
+		<span id="prevS" title="Previous Song" class="left clickable shadowedObj whiteShadowed noSelect">&#x21A9</span>
+		<span id="nextS" title="Next Song" class="right clickable shadowedObj whiteShadowed noSelect">&#x21AA</span>
 		<div id="songContainer" class="marqueeContainer">
 			<div id="songWrapper" class="wrapper loaded" >
-				<span id="song_info" class="line sMarquee shadowedObj standard">No Song Playing!</span>
+				<span id="song_info" class="line sMarquee shadowedObj standard noSelect">No Song Playing!</span>
 			</div>
 		</div>
 		<div id="albumContainer" class="marqueeContainer">
 			<div id="albumWrapper" class="wrapper loaded" >
-				<span id="album_info" class="line aMarquee shadowedObj">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+				<span id="album_info" class="line aMarquee shadowedObj noSelect">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Choose a Station or Hit Play!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 			</div>
 		</div>
 	</div>
 	<div class="idiv">
-		<button class="button whiteShadowed" id="replay_button">REPLAY</button>
-		<button class="button whiteShadowed" id="play_button">PLAY</button>
-		<button class="button whiteShadowed" id="pause_button">PAUSE</button>
-		<button class="button whiteShadowed" id="skip_button">SKIP</button>
+		<button class="button shadowedObj whiteShadowed noSelect" id="replay_button">REPLAY</button>
+		<button class="button shadowedObj whiteShadowed noSelect" id="play_button">PLAY</button>
+		<button class="button shadowedObj whiteShadowed noSelect" id="pause_button">PAUSE</button>
+		<button class="button shadowedObj whiteShadowed noSelect" id="skip_button">SKIP</button>
 		<div id="slide_container">
 			<img class="img" title="Toggle Mute" id="sound_button" src="img/soundOn32.png">
 			<input type="range" min="0" max="100" value="100" class="slider" id="volume_slider" title="Volume Slider"></input>
