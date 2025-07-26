@@ -40,7 +40,7 @@ function startBackend() {
 		chrome.runtime.sendMessage({ message: "_LOGIN"});
         }
     }; 
-    xmlHttp.open( "GET", "https://www.pandora.com", false ); // false for synchronous request
+    xmlHttp.open( "GET", "https://www.pandora.com", true ); // false for synchronous request
     xmlHttp.send( null );
 }
 
@@ -160,7 +160,7 @@ chrome.runtime.onMessage.addListener(
 		}
 		else if (request.request == "_INFO") {
 			console.log("INFO RESPONSE:");console.log(_currentSong);
-			sendResponse(_currentSong);
+			//sendResponse(_currentSong);
 		}
 		else if (request.request == "_VOLUME") {
 			STATUS_.VOLUME_ = request.volume / 100;

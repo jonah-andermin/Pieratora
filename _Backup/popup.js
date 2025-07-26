@@ -1,6 +1,7 @@
 var user = undefined;
 var pass = undefined;
 
+
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
 		console.log("requestMessage:"); console.log(request);
@@ -13,6 +14,8 @@ chrome.runtime.onMessage.addListener(
 			}
 			if(request.station.name) {
 				document.getElementById('station_info').innerHTML = request.station.name;
+				document.getElementById("stationSelector").classList.remove("blink");
+				document.getElementById("stationSelector").textContent = "Change Station";
 			}
 			var album = request.song.albumArt;
 			if (album === undefined){ console.log("ALBUMUNDEFINEDERROR");return;}
@@ -31,8 +34,6 @@ chrome.runtime.onMessage.addListener(
 			var s= ""+Math.floor(Math.random() * 101)+"% "+Math.floor(Math.random() * 101)+"%";
 			document.body.style.backgroundPosition = s;
 			document.getElementById("volume_slider").value = 100 * request.status.VOLUME_;
-			document.getElementById("stationSelector").classList.remove("blink");
-			document.getElementById("stationSelector").textContent = "Change Station";
 		}
 	}
 );
@@ -50,41 +51,19 @@ function getStatus() {
 			alert("IF THIS ALERT IS\nOFFSCREEN DRAG IT\nTO CENTER OR PRESS\nEsc, Enter, OR Space\nTO DISMISS\n\n\nBackground page unloaded. This is a serious internal error for Pieratora.\n\nThe Pieratora extension has partially crashed, however the rest of your browsing session is fine.\nIf you would like to continue using the extension you'll probably need to restart the extension.\nIf you aren't sure how to do this you can try closing and re-opening chrome.\n\nYou can continue to use chrome as normal but Piertora probably won't recover until being restarted.");
 		}
 		if (response.OPEN_) {
-			run_Pieratora();
+			send_info();
 			return;
 		}
 		if (!response.OPEN_) {
-			var loginSuccess = await login(run_Pieratora, loginFailed);
+			login();
+			send_info();
 		}
 	});
 }
 getStatus();//////////////////////////////////////////////execute
 
-function run_Pieratora() {
-	chrome.runtime.sendMessage({ request: "_INFO" }), (function (popupDoc) {
-		return function (response) {
-			console.log("run_response"); console.log(response);
-			if(request.song.songTitle && request.song.artistName) {
-				document.getElementById('song_info').innerHTML = request.song.songTitle + "<br>" + request.song.artistName;
-			}
-			if(request.station.name) {
-				document.getElementById('station_info').innerHTML = request.station.name;
-			}
-			var album = response.albumArt;
-			document.body.style.backgroundPosition = ""+Math.floor(Math.random() * 101);+"% "+Math.floor(Math.random() * 101);+"%";
-			if (album.length < 1) {
-				popupDoc.body.style.backgroundImage = "url(img/defaultAlbum500.png)"
-				return;
-			}
-			var album500 = album.find(obj => {
-				return obj.size === 500
-			});
-			if (album500 === undefined) {
-				album500 = album[album.length - 1];
-			}
-			popupDoc.body.style.backgroundImage = album500.url;
-		}
-	}(document));
+function send_info() {
+	chrome.runtime.sendMessage({ request: "_INFO" });
 }
 
 function pan() {
@@ -166,48 +145,21 @@ function station_selector() {
 		document.getElementById("StationDropped").innerHTML = innerH;
 		var children = document.getElementById("StationDropped").children
 		for (let i=0; i<children.length; i++) {  
-			children[i].onclick = function(){stationSelected(response.stations[i]);
-			document.getElementById("stationSelector").classList.remove("blink");
-			document.getElementById("stationSelector").textContent = "Change Station"};
+			children[i].onclick = function(){stationSelected(response.stations[i]);};
 		}
 	});
 }
 
 function stationSelected(newStation) {
-	chrome.runtime.sendMessage({ request: "_STATION_CHANGE", station: newStation}, function(){});
+	chrome.runtime.sendMessage({ request: "_STATION_CHANGE", station: newStation});
 }
 
-function login(yes, no) {
+function login() {
 	if ((typeof user !== 'undefined') || (typeof pass !== 'undefined')) {
 		if (!user) { user = undefined; }
 		if (!pass) { pass = undefined; }
 	}
-	var prom = new Promise(resolve => {
-		chrome.runtime.sendMessage({ request: "_LOGIN", userName: user, password: pass }, (function (r) {
-			return function (response) {
-				console.log("RESPONSE IS OBJECT");
-				console.log(response);
-				if (response == null) {
-					console.log("login1");
-					r(false);
-				}
-				else if (response.LOGGED_ == null) {
-					alert("IF THIS ALERT IS\nOFFSCREEN DRAG IT\nTO CENTER OR PRESS\nEsc, Enter, OR Space\nTO DISMISS\n\n\nBackground page unloaded. This is a serious internal error for Pieratora.\n\nThe Pieratora extension has partially crashed, however the rest of your browsing session is fine.\nIf you would like to continue using the extension you'll probably need to restart the extension.\nIf you aren't sure how to do this you can try closing and re-opening chrome.\n\nYou can continue to use chrome as normal but Piertora probably won't recover until being restarted.");
-					r(false);
-				}
-				else if (response.LOGGED_) {
-					console.log("login2");
-					r(true);
-				}
-				else if (!response.LOGGED_) {
-					console.log("login3");
-					r(false);
-				}
-			}
-		})(resolve));
-	});
-	prom.then(yes, no);
-	return prom;
+	chrome.runtime.sendMessage({ request: "_LOGIN", userName: user, password: pass });
 }
 
 function loadHtml(file) {
