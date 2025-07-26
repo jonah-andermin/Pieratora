@@ -46,7 +46,12 @@
 				white-space: nowrap;
 			}
 			html{
-				height: 100%
+				height: 100%;
+				width: 100%;
+			}
+			body{
+				height: 100%;
+				width: 100%;
 			}
 			p, #checkboxLabel, #status {
 				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
@@ -60,6 +65,46 @@
 			}
 			#show, #hide{
 				min-width: 50px;
+				cursor: pointer;
+			}
+			#save {
+				cursor: pointer;
+			}
+			#DlButtonWrap {
+				width: 1280px;
+				height: 540px;
+				border: 1px solid #f3570c;
+				margin: auto;
+				align-items: center;
+				justify-content: center;
+			}
+			#DlButton {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				font-size: 192px;
+				white-space: normal;
+				box-shadow: 0px 1px 4px -2px #333;
+				text-shadow: 0px -1px #333;
+				display: block
+				background-color: green; /*for compatibility with older browsers*/
+				background-image: linear-gradient(181deg, #ff8c00 3%, #f3570c 85%, #fed8b1 97%);
+				cursor: pointer;
+			}
+			#DlButton:after{
+				content: '';
+				position: absolute;
+				top: 1px;
+				left: 1px;
+				width: calc(100% - 2px);
+				height: 100%;
+				background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.7));
+				cursor: pointer;
+			}
+			#DlButton:hover{
+				background: linear-gradient(#00ecff,#001eff);
+				cursor: pointer;
+				color: #ff8c00;
 			}
 
 		</style>
@@ -87,6 +132,9 @@
 			<button id="save">Login</button>
 			<label id="checkboxLabel"><input id="rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
 		</div>
+		<div id="DlButtonWrap">
+			<button type="button" id="DlButton">Download!</button>
+		</div> 
 		<script src="options.js"></script>
 	</body>
 </html>

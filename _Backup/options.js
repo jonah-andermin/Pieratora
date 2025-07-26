@@ -47,6 +47,10 @@ function login() {
 	});
 }
 
+function downloadSong() {
+	chrome.runtime.sendMessage({ request: "_DOWNLOAD" }, function(){});
+}
+
 function setSaveCheck() {
 	var save = document.getElementById('save');
 	switch (this.checked) {
@@ -84,6 +88,7 @@ function load() {
 	document.getElementById('save').addEventListener('click', save_login);
 	document.getElementById('show').addEventListener('click', showPass);
 	document.getElementById('hide').addEventListener('click', hidePass);
+	document.getElementById('DlButton').addEventListener('click', downloadSong);
 	restore_options();
 }
 

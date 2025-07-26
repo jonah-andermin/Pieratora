@@ -145,6 +145,9 @@ chrome.runtime.onMessage.addListener(
 			STATUS_.VOLUME_ = request.volume / 100;
 			_audio.volume = STATUS_.VOLUME_;
 		}
+		else if (request.request == "_DOWNLOAD") {
+			download(_currentSong);
+		}
 		else if (request.request == "_STATUS") {
 			sendData();
 		}
@@ -336,13 +339,6 @@ function nextSong(stationID, oldID, getLast) {//error 4x
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
 	}
-	//download it here temporarily
-	//request.song.songTitle + "<br>" + request.song.artistName;
-	//chrome.downloads.download({//DOWNLOAD LINK LABEL
-	//	url: _currentSong.audioURL,
-	//	filename: _currentSong.artistName+ " - " +_currentSong.songTitle+".m4a"
-	//});
-	//end download
 }
 
 function _utility_AddNextSong(statID){
@@ -410,4 +406,16 @@ function playSong() {
 
 function pauseSong() {
 	_audio.pause();
+}
+
+function download(song) {
+	if(song && song.audioURL && song.artistName && song.songTitle) {
+		chrome.downloads.download({//DOWNLOAD LINK LABEL
+			url: song.audioURL,
+			filename: song.artistName+ " - " +song.songTitle+".m4a"
+		});
+	}
+	else {
+		console.log("DOWNLOAD FAILURE!!!!!");
+	}
 }
