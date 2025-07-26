@@ -1,6 +1,6 @@
 //PRE-init vars
-var _DEBUG_ = true;
-var _SUPPRESSED_ = true;
+var _DEBUG_ = false;
+var _SUPPRESSED_ = false;
 var _PERSIST = false;
 //end PRE-init vars
 
@@ -34,7 +34,7 @@ function removal(items){
 		if((!windowsArray.length) && !_PERSIST ) {//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
 			if(_DEBUG_){console.log("DO CLOSE!");}
 			_audio.pause();//THEN STOP PLAYING AUDIO!!!
-			chrome.runtime.getBackgroundPage.close();
+			chrome.runtime.getBackgroundPage().close();
 		}
 	});
 	
@@ -68,12 +68,10 @@ function check_ext_open(callback) {
 	});
 }
 
-function suppress_on_dev(){
-	chrome.management.getSelf(suppress_dev_warning);
-}
+function suppress_on_dev(){ chrome.management.getSelf(suppress_dev_warning); }
 
 check_ext_open(suppress_on_dev);
-chrome.windows.onRemoved.addListener(function(id){ chrome.storage.sync.get( {continuePlaying: false}, removal); });
+chrome.windows.onRemoved.addListener(function(id){ chrome.storage.sync.get( {continuePlaying: true}, removal); });
 //End PRE-init Code *************************************************************************************************
 
 var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1, MUTED_: false};
@@ -92,6 +90,7 @@ var _csrf = null;
 var _cookie = null;
 var _allowCure = false;
 
+//init Audio Object//////////////////////////////////////////////////////////////////////////////
 var _audio = document.createElement("audio"); 
 _audio.onended = function() { nextSong(_stationId); sendData(); };
 _audio.onerror = function() { 
@@ -103,9 +102,10 @@ _audio.onerror = function() {
 	}
 	this.onended();
 }
+chrome.storage.sync.get({ rememberVolume: false, volume: 100 }, function (items) { if(items.rememberVolume){ STATUS_.VOLUME_ = _audio.volume = items.volume } });
+//end Audio Init//////////////////////////////////////////////////////////////////////////////////
 
 chrome.commands.onCommand.addListener(function(command) {
-	var volume = 0.00;
 	switch(command) {
 		case "play-song":
 			if(!STATUS_.OPEN_ || !STATUS_.LOGGED_){
@@ -303,6 +303,7 @@ chrome.runtime.onMessage.addListener(
 		case "_VOLUME":
 			STATUS_.VOLUME_ = request.volume / 100;
 			_audio.volume = STATUS_.VOLUME_;
+			chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
 			break;
 		case "_DOWNLOAD":
 			download(_currentSong);
@@ -621,7 +622,6 @@ function tryStartAudio() {
 		nextSong(_stationId);
 		if(_DEBUG_){console.log("_stationId");console.log(_stationId);}
 		if(_DEBUG_){console.log("_trystart _currentSong"); console.log(_currentSong);}
-		//return _currentSong;//un-needed?
 	}
 }
 
@@ -657,15 +657,17 @@ function pauseSong() {
 }
 
 function volUp() {
-	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ += 0.05)>1)?1:STATUS_.VOLUME_;
+	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ += 0.01)>1)?1:STATUS_.VOLUME_;
 	_audio.volume = STATUS_.VOLUME_;
 	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
+	chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
 }
 
 function volDown() {
-	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ -= 0.05)<0)?0:STATUS_.VOLUME_;
+	STATUS_.VOLUME_ = ((STATUS_.VOLUME_ -= 0.01)<0)?0:STATUS_.VOLUME_;
 	_audio.volume = STATUS_.VOLUME_;
 	chrome.runtime.sendMessage({ message: "_VOLUME", volume: STATUS_.VOLUME_ });
+	chrome.storage.sync.set({ volume: STATUS_.VOLUME_ });
 }
 
 function remoteMute() {
@@ -675,6 +677,17 @@ function remoteMute() {
 }
 
 function download(song) {
+	chrome.permissions.request({ permissions: ['downloads'] }, function(granted) {
+		if (granted) {
+			do_download(song);
+		} else {
+			console.log("___DOWNLOAD PERMISSION DENIED___");
+		}
+	});
+	
+}
+
+function do_download(song) {
 	if(song && song.audioURL && song.artistName && song.songTitle) {
 		chrome.downloads.download({//DOWNLOAD LINK LABEL
 			url: song.audioURL,
@@ -685,6 +698,13 @@ function download(song) {
 	else {
 		if(_DEBUG_){console.log("DOWNLOAD FAILURE!!!!!");}
 	}
+	chrome.permissions.contains({ permissions: ['downloads'] }, function(result){ 
+		if(result){
+			chrome.permissions.remove({ permissions: ['downloads'] }, function(removed){ 
+				console.log("DownloadPermissionRemoved:",removed); 
+			});
+		}
+	});
 }
 
 function autoDownload(){

@@ -1,3 +1,5 @@
+var _DEBUG_ = true;
+
 // Saves options to chrome.storage
 function save_login_options() {
   var user = document.getElementById('user').value;
@@ -71,7 +73,8 @@ function restore_options() {
 		remember: '',
 		rightClickDownload: false,
 		continuePlaying: false,
-		autoDownload: false
+		autoDownload: false,
+		rememberVolume: false
 	}, function(items) {
  		document.getElementById('user').value = items.userName;
 		document.getElementById('pass').value = items.password;
@@ -79,6 +82,7 @@ function restore_options() {
 		document.getElementById("so3Check").checked = items.rightClickDownload;
 		document.getElementById("so4Check").checked = items.continuePlaying;
 		document.getElementById("so5Check").checked = items.autoDownload;
+		document.getElementById("so7Check").checked = items.rememberVolume;
 		var save = document.getElementById('save');
 		if (items.remember){
 			save.textContent = "Save/Login"; save.value = "Save/Login";
@@ -102,6 +106,7 @@ function load() {
 	document.getElementById('so4').addEventListener('click', so4);
 	document.getElementById('so5').addEventListener('click', so5);
 	document.getElementById('so6').addEventListener('click', so6);
+	document.getElementById('so7').addEventListener('click', so7);
 	dragElement(document.getElementById(('dragDiv1')));
 	dragElement(document.getElementById(('dragDiv2')));
 	restore_options();
@@ -118,12 +123,27 @@ function so2() {
 function so3(e) {
 	if(e.target.tagName == "LABEL"){ return; }
 	chrome.storage.sync.set( {rightClickDownload: document.getElementById("so3Check").checked} );
+	chrome.contextMenus.create({
+    		title: 'test',
+    		onclick: function(e){
+        		console.log(e)
+    		}
+
+	}, function(){})
 }
 
 function so4(e) {
 	if(e.target.tagName == "LABEL"){ return; }
 	if(document.getElementById("so4Check").checked){
 		document.getElementById("so4Check").checked = confirm("Enabling this allows Pieratora to continue playing after Chrome has been closed.\n\nAny Keyboard Shortcuts set to 'Global' will still work.\nIn this state, the extension can be accessed by re-opening chrome or via the Chrome Icon in the System Tray.\n\nIn order for this mode to work, make sure you have enabled the \"Continue running background apps when Google Chrome is closed\" setting from your Chrome Browser Setting. The \"Play In Background\" button under \"Special Options\" will navigate you to this setting.\n\nOnce this setting is enabled, audio will continue even though you close chrome. Please confirm you would like to enable this setting!");
+	}
+	if(document.getElementById("so4Check").checked){
+		chrome.permissions.request({ permissions: ['background'] }, allow_background );
+	}
+	else{
+		chrome.permissions.remove({ permissions: ['background'] }, function(removed){ 
+			console.log("BackgroundPermissionRemoved:",removed); 
+		});
 	}
 	chrome.storage.sync.set( {continuePlaying: document.getElementById("so4Check").checked} );
 }
@@ -138,6 +158,17 @@ function so5(e) {
 
 function so6() {
 	chrome.tabs.create({ url: "chrome://settings/?search=Ask+where+to+save+each+file+before+downloading"});
+}
+
+function so7() {
+	chrome.storage.sync.set( {rememberVolume: document.getElementById("so7Check").checked} );
+}
+
+function allow_background(granted)
+{
+	if(_DEBUG_ ){ console.log("granted:", granted); }
+	document.getElementById("so4Check").checked = granted;
+	chrome.storage.sync.set( {continuePlaying: document.getElementById("so4Check").checked} );
 }
 
 function showPass() {
