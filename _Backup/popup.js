@@ -1,22 +1,20 @@
 var user = undefined;
 var pass = undefined;
-
+var debug = true;
 
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
-		console.log("requestMessage:"); console.log(request);
+		if(debug){console.log("requestMessage:"); console.log(request);}
 		if (!request || !request.message) {
 			return;
 		}
 		else if (request.message == "_INFO") {
 			if(request.song.songTitle && request.song.artistName) {
-				let root = document.documentElement;
 				if(request.song.songTitle.length > 30) {
 					document.getElementById('song_info').innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"; 
 					document.getElementById('song_info').classList.remove("standard");
 					document.getElementById('songWrapper').classList.remove("loaded");
-					var temp = document.getElementById("song_info").offsetWidth/-5.7;
-					root.style.setProperty('--sCalc', temp + "%");
+					setSongMarquee();
 				}
 				else {
 					document.getElementById('song_info').innerHTML = request.song.songTitle;
@@ -27,8 +25,7 @@ chrome.runtime.onMessage.addListener(
 					document.getElementById('album_info').innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					document.getElementById('album_info').classList.remove("standard");
 					document.getElementById('albumWrapper').classList.add("loaded");
-					var temp = document.getElementById("album_info").offsetWidth/-5.7;
-					root.style.setProperty('--aCalc', temp + "%");
+					setAlbumMarquee();
 				}
 				else {
 					document.getElementById('album_info').innerHTML = request.song.artistName;
@@ -42,7 +39,7 @@ chrome.runtime.onMessage.addListener(
 				document.getElementById("stationSelector").textContent = "Change Station";
 			}
 			var album = request.song.albumArt;
-			if (album === undefined){ console.log("ALBUMUNDEFINEDERROR");return;}
+			if (album === undefined){ if(debug){console.log("ALBUMUNDEFINEDERROR");}return;}
 			if (album.length < 1 || album === undefined) {
 				document.body.style.backgroundImage = "url(img/defaultAlbum500.png)";
 				return;
@@ -53,7 +50,7 @@ chrome.runtime.onMessage.addListener(
 			if (album500 === undefined) {
 				album500 = album[album.length - 1];
 			}
-			console.log("album500"); console.log(album500);
+			if(debug){console.log("album500"); console.log(album500);}
 			document.body.style.backgroundImage = "url('"+album500.url+"')";
 			var s= ""+Math.floor(Math.random() * 101)+"% "+Math.floor(Math.random() * 101)+"%";
 			document.body.style.backgroundPosition = s;
@@ -70,9 +67,11 @@ function getStatus() {
 			return;
 		}
 		document.getElementById("volume_slider").value = 100 * response.VOLUME_;
-		console.log("______________________________________________________________");
-		console.log(response);
-		console.log("______________________________________________________________");
+		if(debug){
+			console.log("______________________________________________________________");
+			console.log(response);
+			console.log("______________________________________________________________");
+		}
 		if (response.OPEN_ == null) {
 			alert("IF THIS ALERT IS\nOFFSCREEN DRAG IT\nTO CENTER OR PRESS\nEsc, Enter, OR Space\nTO DISMISS\n\n\nBackground page unloaded. This is a serious internal error for Pieratora.\n\nThe Pieratora extension has partially crashed, however the rest of your browsing session is fine.\nIf you would like to continue using the extension you'll probably need to restart the extension.\nIf you aren't sure how to do this you can try closing and re-opening chrome.\n\nYou can continue to use chrome as normal but Piertora probably won't recover until being restarted.");
 		}
@@ -119,8 +118,10 @@ function sound_button() {
 	var btn = document.getElementById("sound_button");
 	var power = btn.src.includes("img/soundOn32.png");
 	chrome.runtime.sendMessage({ request: "_SOUND", power: power });
-	console.log("mutebutton");console.log(btn);
-	console.log(power);
+	if(debug){
+		console.log("mutebutton");console.log(btn);
+		console.log(power);
+	}
 	if (!power) {
 		btn.setAttribute('src', "img/soundOn32.png");
 	}
@@ -239,7 +240,21 @@ window.onload = function() {
 	document.getElementById("stationSelector").onclick = station_selector;
 	document.getElementById("nextS").onclick = next_song;
 	document.getElementById("prevS").onclick = prev_song;
-	console.log("onload completed");
+	setSongMarquee();
+	setAlbumMarquee();
+	if(debug){console.log("onload completed");}
+}
+
+function setSongMarquee() {
+	let root = document.documentElement;
+	var temp = ((document.getElementById("song_info").offsetWidth)/-3);
+	root.style.setProperty('--sCalc', temp + "px");
+}
+
+function setAlbumMarquee() {
+	let root = document.documentElement;
+	var temp = (document.getElementById("album_info").offsetWidth)/-3;
+	root.style.setProperty('--aCalc', temp + "px");
 }
 
 //Close dropdown when window clicked

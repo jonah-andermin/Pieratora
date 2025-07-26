@@ -50,13 +50,7 @@ function getCookie(){
 }
 ///////////////////////////////////////START STUFF!!!
 startBackend();
-
-//console.log("teststart");
-//chrome.runtime.sendMessage({ message: "_LOGIN"});
-//console.log("testend");
-
-//startSong();
-
+///////////////////////////////////////
 
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
@@ -178,7 +172,7 @@ chrome.runtime.onMessage.addListener(
 
 //=================================================================================================================================================================================abstract_httprequest
 
-function httpPostAsync(url, body, requestHeaderAttributes, callback, fail) {//error 0x
+function httpPostAsync(url, body, requestHeaderAttributes, callback, fail, retry) {//error 0x
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function () {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -186,7 +180,13 @@ function httpPostAsync(url, body, requestHeaderAttributes, callback, fail) {//er
 		}
 		else if (xmlHttp.readyState == 4){
 			console.log("{Status != 200} RESPONSE:"), console.log(xmlHttp.responseText), (fail || function(){})();
-			STATUS_.LOGGED_ = false;
+			startBackend();
+			login();/////////////////////////////////////try correct?
+			if(!retry){
+				console.log("retry post!!!");
+				httpPostAsync(url, body, requestHeaderAttributes, callback, fail, true);/////does this work even?
+			}
+			//STATUS_.LOGGED_ = false; ///////////////////////////////don't set because it won't be reset
 		}
 	}
 	xmlHttp.open("POST", url, true); //true == async
