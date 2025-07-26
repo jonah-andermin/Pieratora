@@ -137,6 +137,28 @@ function volume_slider() {
 	chrome.runtime.sendMessage({ request: "_VOLUME", volume: document.getElementById("volume_slider").value });
 }
 
+function station_selector() {
+	chrome.runtime.sendMessage({ request: "_GET_STATIONS"}, function(response) {
+		document.getElementById("StationDropped").style.display = document.getElementById("StationDropped").style.display==='none'?'block':'none';
+		if(document.getElementById("StationDropped").style.display==='none'){return;}
+		var innerH = ""
+		var station = NaN;
+		for (let i=0; i<response.stations.length; i++) {  
+			station = response.stations[i];
+  			innerH+="<a href='#' class='shadowedObj' style='display:block' bgcolor='transparent' index='"+i+"'>"+station.name+"</a>";
+		}
+		document.getElementById("StationDropped").innerHTML = innerH;
+		var children = document.getElementById("StationDropped").children
+		for (let i=0; i<children.length; i++) {  
+			children[i].onclick = function(){stationSelected(response.stations[i]);};
+		}
+	});
+}
+
+function stationSelected(newStation) {
+	chrome.runtime.sendMessage({ request: "_STATION_CHANGE", station: newStation}, function(){});
+}
+
 function login(yes, no) {
 	if ((typeof user !== 'undefined') || (typeof pass !== 'undefined')) {
 		if (!user) { user = undefined; }
@@ -218,6 +240,13 @@ window.onload = function() {
 	document.getElementById("skip_button").onclick = skip_button;
 	document.getElementById("volume_slider").oninput = volume_slider;
 	document.getElementById("sound_button").onclick = sound_button;
-	document.getElementById("sound_button").onclick = sound_button;
+	document.getElementById("stationSelector").onclick = station_selector;
 	console.log("onload completed");
+}
+
+//Close dropdown when window clicked
+window.onclick = function(event) {
+	if (!event.target.matches('#stationSelector')) {
+		document.getElementById("StationDropped").style.display = 'none';
+  	}
 }

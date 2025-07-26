@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener(
 		else if (request.request == "_GET_STATIONS") {
 			STATUS_.ERROR_ = false;
 			if (STATUS_.LOGGED_ && STATUS_.OPEN_) {
-				sendResponse({ TYPE: "STATIONS", _stations });
+				sendResponse({ TYPE: "STATIONS", stations: _stations });
 				return;
 			}
 			else {
@@ -113,10 +113,14 @@ chrome.runtime.onMessage.addListener(
 				STATUS_.ERROR_ = "-30";
 			}
 		}
-		else if (request.request == "_SET") {//UNUSED?
+		else if (request.request == "_STATION_CHANGE") {
 			STATUS_.ERROR_ = false;
-			_stationId = request.id;
+			_currentStation = request.station
+			var oldID = _stationId;
+			_stationId = request.station.stationId;
 			STATUS_.ERROR_ = !_stationId;
+			nextSong(_stationId, oldID, true);
+			sendData();
 		}
 		else if (request.request == "_CLOSE") {
 			closePieratora(request.power);
@@ -277,10 +281,14 @@ function addSongs(stationID, func) {//error 3x
 
 //=================================================================================================================================================================================internal_data
 
-function nextSong(stationID) {//error 4x
+function nextSong(stationID, oldID, getLast) {//error 4x
 	if ((!stationID || isNaN(stationID)) && _stations && _stations.length > 0) {
 		stationID = _stations[0].stationId;
+		_stationId = stationID
 		_currentStation = _stations[0];
+	}
+	if (!oldID || isNaN(oldID)) {
+		oldID = stationID;
 	}
 	console.log("station info:"); console.log(stationID); console.log(_stations);
 	console.log("_currentSong");console.log(_currentSong);
@@ -288,10 +296,25 @@ function nextSong(stationID) {//error 4x
 		console.log("1");
 		if (!_pastSongs[stationID]) {
 			_pastSongs[stationID] = [];
+		}if (!_pastSongs[oldID]) {
+			_pastSongs[oldID] = [];
 		}
-		_pastSongs[stationID].push(_currentSong);
+		_currentSong.XXRESUMEXX = _audio.currentTime
+		_pastSongs[oldID].push(_currentSong);
+		if(_pastSongs[oldID].length > 10) {
+			_pastSongs[oldID].shift()
+		}
 	}
-	if (!_songLists[stationID] || !_songLists[stationID].length) {
+	if(getLast && _pastSongs[stationID] && _pastSongs[stationID].length) {
+		_currentSong = _pastSongs[stationID].pop();
+		_audio.setAttribute('src', _currentSong.audioURL);
+		_audio.volume = STATUS_.VOLUME_;
+		if(_currentSong.XXRESUMEXX) {
+			_audio.currentTime = _currentSong.XXRESUMEXX;
+		}
+		_audio.play();
+	}
+	else if (!_songLists[stationID] || !_songLists[stationID].length) {
 		console.log("2");
 		chrome.cookies.get({ url: 'https://pandora.com', name: 'csrftoken' }, function (cookie) {
 				if(cookie == null){
