@@ -200,7 +200,7 @@ function startBackend(callback) {
 
 function getCookie(){
 	if(_DEBUG_){console.log("csrfGETCOOKIE:");console.log(_csrf);}
-	return (_csrf)? _csrf : ((cookie && cookie.value)? cookie.value : document.cookie.substring(document.cookie.indexOf("csrftoken=")).substring(10,document.cookie.substring(document.cookie.indexOf("csrftoken=")).indexOf(";")));
+	return (_csrf) || (_cookie && _cookie.value) || document.cookie.substring(document.cookie.indexOf("csrftoken=")).substring(10,document.cookie.substring(document.cookie.indexOf("csrftoken=")).indexOf(";")) || cookieNotFound();
 }
 ///////////////////////////////////////START STUFF!!!
 startBackend();
@@ -397,11 +397,12 @@ function login(sendResponse) {//sendResponse is a function passed along to inner
 			if(_DEBUG_){console.log("SR2:"); console.log(sr2);}
 			return function (cookie) {
 				if(_DEBUG_){console.log("COOOOOOOOOKEI!"); console.log(cookie);}
+				var body = { "existingAuthToken": _loginData && _loginData.authToken || null, "username": _username, "password": _password, "keepLoggedIn": true }
 				var requestHeaderAttributes = [{ 'type': 'Content-Type', 'value': 'application/json' },
 				{ 'type': 'Accept', 'value': 'application/json, text/plain, */*' },
-				{ 'type': 'X-CsrfToken', 'value': getCookie()}
+				{ 'type': 'X-CsrfToken', 'value': cookie.value || getCookie()}// added "cookie.value || " to prevent rare login failure, cause unknown
 				];
-				httpPostAsync("https://www.pandora.com/api/v1/auth/login", { "existingAuthToken": null, "username": _username, "password": _password, "keepLoggedIn": true }, requestHeaderAttributes,
+				httpPostAsync("https://www.pandora.com/api/v1/auth/login", body, requestHeaderAttributes,
 					(function (sr) {
 						if(_DEBUG_){console.log("sr001:"); console.log(sr);}
 						return function (response) {
