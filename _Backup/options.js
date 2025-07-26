@@ -74,7 +74,8 @@ function restore_options() {
 		rightClickDownload: false,
 		continuePlaying: false,
 		autoDownload: false,
-		rememberVolume: false
+		rememberVolume: false,
+		notifyUpdates: true
 	}, function(items) {
  		document.getElementById('user').value = items.userName;
 		document.getElementById('pass').value = items.password;
@@ -83,6 +84,7 @@ function restore_options() {
 		document.getElementById("so4Check").checked = items.continuePlaying;
 		document.getElementById("so5Check").checked = items.autoDownload;
 		document.getElementById("so7Check").checked = items.rememberVolume;
+		document.getElementById("so9Check").checked = items.notifyUpdates;
 		var save = document.getElementById('save');
 		if (items.remember){
 			save.textContent = "Save/Login"; save.value = "Save/Login";
@@ -90,7 +92,6 @@ function restore_options() {
 		else {
 			save.textContent = "Login"; save.value = "Login"; 
 		}
-
 	});
 }
 
@@ -107,9 +108,21 @@ function load() {
 	document.getElementById('so5').addEventListener('click', so5);
 	document.getElementById('so6').addEventListener('click', so6);
 	document.getElementById('so7').addEventListener('click', so7);
+	document.getElementById('so8').addEventListener('click', so8);
+	document.getElementById('so9').addEventListener('click', so9);
 	dragElement(document.getElementById(('dragDiv1')));
 	dragElement(document.getElementById(('dragDiv2')));
 	restore_options();
+	updateUserVersion();
+}
+
+function updateUserVersion(){
+	chrome.storage.sync.get({ version: "NEW", notifyUpdates: true }, function (items) { if(items.notifyUpdates && items.version != chrome.runtime.getManifest().version){ showUpdate(); } });
+}
+
+function showUpdate(){
+	chrome.storage.sync.set({ version: chrome.runtime.getManifest().version });
+	window.location.href = '../PIERATORA UPDATES!.html';
 }
 
 function so1() {
@@ -154,6 +167,14 @@ function so6() {
 
 function so7() {
 	chrome.storage.sync.set( {rememberVolume: document.getElementById("so7Check").checked} );
+}
+
+function so8() {
+	window.location.href = '../PIERATORA UPDATES!.html';
+}
+
+function so9() {
+	chrome.storage.sync.set( {notifyUpdates: document.getElementById("so9Check").checked} );
 }
 
 function toggle_contextMenu(granted) {

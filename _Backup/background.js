@@ -70,8 +70,19 @@ function check_ext_open(callback) {
 
 function suppress_on_dev(){ chrome.management.getSelf(suppress_dev_warning); }
 
-check_ext_open(suppress_on_dev);
-chrome.windows.onRemoved.addListener(function(id){ chrome.storage.sync.get( {continuePlaying: true}, removal); });
+function updateUserVersion(){
+	chrome.storage.sync.get({ version: "NEW", notifyUpdates: true }, function (items) { 
+		if(items.notifyUpdates && items.version != chrome.runtime.getManifest().version){ chrome.runtime.openOptionsPage(); } 
+	});
+}
+
+
+function pre_INIT(){
+	check_ext_open(suppress_on_dev);
+	chrome.windows.onRemoved.addListener(function(id){ chrome.storage.sync.get( {continuePlaying: true}, removal); });
+	updateUserVersion();
+}
+pre_INIT();
 //End PRE-init Code *************************************************************************************************
 
 var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1, MUTED_: false};
