@@ -74,6 +74,8 @@ chrome.runtime.onMessage.addListener(
 					btn.setAttribute('src', "img/soundOn32.png");
 				}
 			}
+			document.getElementById("thumbD").classList.remove('thumbed');
+			document.getElementById("thumbU").classList.remove('thumbed');
 		}
 	}
 );
@@ -156,10 +158,24 @@ function next_song() {
 	chrome.runtime.sendMessage({ request: "_NEXT" });
 }
 
+function thumb_down() {
+	chrome.runtime.sendMessage({ request: "_T_DOWN" });
+	chrome.runtime.sendMessage({ request: "_REMOVE" });
+	document.getElementById("thumbD").classList.toggle('thumbed');
+}
+
+function thumb_up() {
+	chrome.runtime.sendMessage({ request: "_T_UP" });
+	document.getElementById("thumbU").classList.toggle('thumbed');
+}
+
 function prev_song() {
 	chrome.runtime.sendMessage({ request: "_PREV" });
 }
 
+function remove_song() {
+	chrome.runtime.sendMessage({ request: "_REMOVE" });
+}
 
 function volume_slider() {
 	chrome.runtime.sendMessage({ request: "_VOLUME", volume: document.getElementById("volume_slider").value });
@@ -234,6 +250,8 @@ window.onload = function() {
 	document.getElementById("stationSelector").onclick = station_selector;
 	document.getElementById("nextS").onclick = next_song;
 	document.getElementById("prevS").onclick = prev_song;
+	document.getElementById("thumbD").onclick = thumb_down;
+	document.getElementById("thumbU").onclick = thumb_up;
 	document.getElementById("alog1").onclick = openOptions;
 	document.getElementById("alog2").onclick = openOptions;
 	document.getElementById("alog3").onclick = openOptions;

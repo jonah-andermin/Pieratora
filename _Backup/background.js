@@ -84,6 +84,7 @@ var _username = false;
 var _password = false;
 var _csrf = null;
 var _cookie = null;
+var _allowCure = false;
 
 var _audio = document.createElement("audio"); 
 _audio.onended = function() { nextSong(_stationId); sendData(); };
@@ -303,6 +304,12 @@ chrome.runtime.onMessage.addListener(
 		case "_STATUS":
 			sendData();
 			break;
+		case "_REMOVE":
+			removeCurrent();
+			sendResponse({ TYPE: "SONG", SONG_: _currentSong, ERROR_: !_currentSong });
+			sendData();
+			return;
+			break;
 		default:
 			if(_DEBUG_){ console.log("request-not-implemented:", request); }
 			break;
@@ -452,7 +459,9 @@ function addSongs(stationID, func) {//error 3x
 		];
 		httpPostAsync("https://www.pandora.com/api/v1/playlist/getFragment", body, requestHeaderAttributes,
 			function (response) {
-				_songLists[stationID] = (_songLists[stationID] || []).concat(JSON.parse(response).tracks);
+				var newSongsJSON = JSON.parse(response).tracks;
+				newSongsJSON = cureSongs(newSongsJSON);
+				_songLists[stationID] = (_songLists[stationID] || []).concat(newSongsJSON);
 				func();
 			}
 		);
@@ -498,7 +507,10 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 		if(_currentSong.XXRESUMEXX) {
 			_audio.currentTime = _currentSong.XXRESUMEXX;
 		}
-		if(!paused) { _audio.play();}
+		if(!paused) {
+			var playPromise = _audio.play();
+			playPromise.catch(() => { console.log("PLAY@nextSong[0] failure, maybe song was cured?"); });
+		}
 	}
 	else if (!_songLists[stationID] || !_songLists[stationID].length) {
 		if(_DEBUG_){console.log("2");}
@@ -525,9 +537,11 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 			_audio.removeAttribute('src');
 		}
 		_audio.volume = STATUS_.VOLUME_;
-		_audio.play();
+		var playPromise = _audio.play();
+		playPromise.catch(() => { console.log("PLAY@nextSong[1] failure, maybe song was cured?"); });
 	}
 	autoDownload();
+	cureCurrent(true);
 }
 
 //=================================================================================================================================================================================internal_data
@@ -554,8 +568,10 @@ function prevSong(stationID) {//error 5x-??????
 		_audio.removeAttribute('src');
 	}
 	_audio.volume = STATUS_.VOLUME_;
-	_audio.play();
-	autoDownload()
+	var playPromise = _audio.play();
+	playPromise.catch(() => { console.log("PLAY@prevSong failure, maybe song was cured?"); });
+	autoDownload();
+	cureCurrent(false);
 }
 
 function _utility_AddNextSong(statID){
@@ -571,9 +587,11 @@ function _utility_AddNextSong(statID){
 		}
 		else {
 			_audio.removeAttribute('src');
+			if(_DEBUG_){console.log("INVALID SONG!!!! _currentSong", _currentSong);}
 		}
 		_audio.volume = STATUS_.VOLUME_;
-		_audio.play();
+		var playPromise = _audio.play();
+		playPromise.catch(() => { console.log("PLAY@_utility_AddNextSong failure, maybe song was cured?"); });
 		autoDownload();
 		sendData();
 	});
@@ -613,7 +631,8 @@ function playSong() {
 		tryStartAudio();
 	}
 	if(_DEBUG_){console.log("play!!!!!!!!");}
-	_audio.play();
+	var playPromise = _audio.play();
+	playPromise.catch(() => { console.log("PLAY@playSong failure, maybe song was cured?"); });
 	autoDownload();
 }
 
@@ -659,4 +678,30 @@ function autoDownload(){
 			download(_currentSong);
 		}
 	});
+}
+
+function cureSongs(songList){
+	var song = {};
+	for(var i = 0; i< songList.length; ++i){
+		song = songList[i];
+		if(songList[i].songTitle == "Curator Message"){
+			songList[i].cure = true;
+			if(!_allowCure){
+				songList.splice(i, 1);
+				--i;
+			}
+		}
+	}
+	return songList;
+}
+
+function cureCurrent(next){
+	var func = function(){};
+	if(next){func=nextSong;}else{func=prevSong;}
+	if(_currentSong.cure && !_allowCure){func(_currentStation);}
+}
+
+function removeCurrent(){
+	_currentSong.remove = true;
+	nextSong(_stationId);
 }
