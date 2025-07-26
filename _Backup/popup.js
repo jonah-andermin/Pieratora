@@ -10,7 +10,31 @@ chrome.runtime.onMessage.addListener(
 		}
 		else if (request.message == "_INFO") {
 			if(request.song.songTitle && request.song.artistName) {
-				document.getElementById('song_info').innerHTML = request.song.songTitle + "<br>" + request.song.artistName;
+				let root = document.documentElement;
+				if(request.song.songTitle.length > 30) {
+					document.getElementById('song_info').innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+ request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.songTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"; 
+					document.getElementById('song_info').classList.remove("standard");
+					document.getElementById('songWrapper').classList.remove("loaded");
+					var temp = document.getElementById("song_info").offsetWidth/-5.7;
+					root.style.setProperty('--sCalc', temp + "%");
+				}
+				else {
+					document.getElementById('song_info').innerHTML = request.song.songTitle;
+					document.getElementById('song_info').classList.add("standard");
+					document.getElementById('songWrapper').classList.add("loaded");
+				}
+				if(request.song.artistName.length > 30) {
+					document.getElementById('album_info').innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + request.song.artistName + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					document.getElementById('album_info').classList.remove("standard");
+					document.getElementById('albumWrapper').classList.add("loaded");
+					var temp = document.getElementById("album_info").offsetWidth/-5.7;
+					root.style.setProperty('--aCalc', temp + "%");
+				}
+				else {
+					document.getElementById('album_info').innerHTML = request.song.artistName;
+					document.getElementById('album_info').classList.add("standard");
+					document.getElementById('albumWrapper').classList.add("loaded");
+				}
 			}
 			if(request.station.name) {
 				document.getElementById('station_info').innerHTML = request.station.name;
@@ -33,7 +57,9 @@ chrome.runtime.onMessage.addListener(
 			document.body.style.backgroundImage = "url('"+album500.url+"')";
 			var s= ""+Math.floor(Math.random() * 101)+"% "+Math.floor(Math.random() * 101)+"%";
 			document.body.style.backgroundPosition = s;
-			document.getElementById("volume_slider").value = 100 * request.status.VOLUME_;
+			if(document.getElementById("volume_slider")) {
+				document.getElementById("volume_slider").value = 100 * request.status.VOLUME_;
+			}
 		}
 	}
 );

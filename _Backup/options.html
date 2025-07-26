@@ -50,8 +50,6 @@
 				width: 100%;
 			}
 			body{
-				height: 100%;
-				width: 100%;
 			}
 			p, #checkboxLabel, #status {
 				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
@@ -71,18 +69,19 @@
 				cursor: pointer;
 			}
 			#DlButtonWrap {
-				width: 1280px;
-				height: 540px;
+				width: 960px;
+				height: 180px;
 				border: 1px solid #f3570c;
 				margin: auto;
 				align-items: center;
 				justify-content: center;
+				z-index: -10;
 			}
 			#DlButton {
 				position: relative;
 				width: 100%;
 				height: 100%;
-				font-size: 192px;
+				font-size: 150px;
 				white-space: normal;
 				box-shadow: 0px 1px 4px -2px #333;
 				text-shadow: 0px -1px #333;
@@ -104,7 +103,11 @@
 			#DlButton:hover{
 				background: linear-gradient(#00ecff,#001eff);
 				cursor: pointer;
-				color: #ff8c00;
+				//color: #ff8c00;
+				//z-index: -4;
+			}
+			#dragDiv {
+				z-index: 2;
 			}
 
 		</style>

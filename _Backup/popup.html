@@ -8,6 +8,10 @@
 <head>
 	<title>Pieratora Popup</title>
 	<style type="text/css">
+		:root {
+			--sCalc: 100%;
+			--aCalc: 100%;
+		}
 		#slidecontainer {
 			width: 100%; /* Width of the outside container */
 		}
@@ -52,7 +56,6 @@
 			appearance: none;
 			width: 16px; /* Set a specific slider handle width */
 			height: 16px; /* Slider handle height */
-			border: 1px solid blue;
 			background: url('img/sound16.png');
 			cursor: pointer; /* Cursor on hover */
 		}
@@ -61,10 +64,7 @@
 			0%{
 				color: #000000;
 			}
-			33%{
-				color: #0000ff;
-			}
-			66%{
+			50%{
 				color: #ffffff;	
 			}
 			100%{
@@ -77,7 +77,7 @@
 
 		.blink {
 			/* NAME | TIME | ITERATION */
-			animation: blinking 3s infinite;
+			animation: blinking 2s infinite;
 		}
 		.noBlink {
 			animation: nan_NONE;
@@ -88,20 +88,23 @@
 			white-space: nowrap;
 		}
 
-		p, .shadowedObj {
+		p, .shadowedObj, .button {
 			text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
 			font-weight: bold;
 		}
 
 		.img {
 			display: inline-block;
-			border: 1px solid blue;
 			margin: 1px 2px;
 			cursor: pointer;
 			position: absolute;
 			transform: translate(-50%, -50%);
 			top: 80%;
 			left: 48px;
+		}
+		.img:hover {
+			border: 4px solid rgba(255, 255, 255, 1);
+			border-radius: 13px;
 		}
 
 
@@ -114,6 +117,16 @@
 			cursor: pointer;
 			height: 25px;
 			width: 75px;
+			border-radius: 50px;
+			background: transparent;
+    			border: 2px solid rgba(255, 255, 255, 0.8);
+		}
+		button:focus {
+			outline:0;
+		}
+		
+		.whiteShadowed:hover {
+			text-shadow: -0.6px -0.6px 15px #ffffff, -0.6px 0.4px 15px #ffffff, -0.6px 1.4px 15px #ffffff, 0.4px -0.6px 15px #ffffff, 0.4px 0.4px 15px #ffffff, 0.4px 1.4px 15px #ffffff, 1.4px -0.6px 15px #ffffff, 1.4px 0.4px 15px #ffffff, 1.4px 1.4px 15px #ffffff;
 		}
 
 		.fram {
@@ -195,13 +208,6 @@
 			font-size: 50px;
 			z-index: 3;
 		}
-		#song_info {
-			top: 45%;
-			left: 50%;
-			position: absolute;
-			transform: translate(-50%, -50%);
-			z-index: -1;
-		}
 		#replay_button {
 			top: 65%;
 			left: 35px;
@@ -234,30 +240,92 @@
 			width 100%
 		}
 
+/*//////////////////////////////////////////////////////////////////////////////////*/
+
+		#songContainer {
+			top: 80px;
+		}
+		#albumContainer {
+			top: 100px;
+		}
+		.marqueeContainer{
+			width: 190px;
+			height: 50px;
+			position: absolute;
+			overflow: hidden;
+			padding: 0;
+			transform: translate(-50%, -50%);
+			left: 160px;
+		}
+		.loaded {
+			width: auto;
+		}
+		.wrapper {
+			overflow: hidden; 
+			width: 190px;
+			height: 100%;
+		}
+		span.line {
+			//overflow: hidden; 
+			position: relative;
+			width: auto;
+			top: 15px;
+		}
+
+		.sMarquee {
+			animation: song_marquee 5s linear infinite;
+		}
+		.aMarquee {
+			animation: album_marquee 5s linear infinite;
+		}
+
+		span.standard {
+			animation: none;
+			transform: translate(-50%, -50%);
+			left: 0;
+		}
+		@keyframes song_marquee {
+			0% { left: 0%; }
+			100% { left: var(--sCalc); }
+		}
+		@keyframes album_marquee {
+			0% { left: 0%; }
+			100% { left: var(--aCalc); }
+		}
+
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="popup.js"></script>
 </head>
 <body class="css3gradient">
-	<span id="stationSelector" class="clickable shadowedObj blink">Select a Station</span></div>
+	<span id="stationSelector" class="clickable shadowedObj whiteShadowed blink">Select a Station</span></div>
 	<div id="StationDropped" style="display:none">
 		<a href="#" class="shadowedObj" style='display:block'>Home</a>
 		<a href="#" class="shadowedObj" style='display:block'>About</a>
 		<a href="#" class="shadowedObj" style='display:block'>Contact</a>
 	</div>
-	<p id="station_info">[Radio Station Name Here]</p>
+	<p id="station_info">No Station Selected</p>
 	<div class="idiv">
-		<span id="prevS" title="Previous Song" class="left clickable shadowedObj">&#x21A9</span>
-		<span id="nextS" title="Next Song" class="right clickable shadowedObj">&#x21AA</span>
-		<span id="song_info" class="mid shadowedObj">NaN<br>NaN<span>
+		<span id="prevS" title="Previous Song" class="left clickable shadowedObj whiteShadowed">&#x21A9</span>
+		<span id="nextS" title="Next Song" class="right clickable shadowedObj whiteShadowed">&#x21AA</span>
+		<div id="songContainer" class="marqueeContainer">
+			<div id="songWrapper" class="wrapper loaded" >
+				<span id="song_info" class="line sMarquee shadowedObj">No Song Is Currently Playing!!!&nbsp;&nbsp;&nbsp;No Song Is Currently Playing!!!&nbsp;&nbsp;&nbsp;No Song Is Currently Playing!!!</span>
+			</div>
+		</div>
+		<div id="albumContainer" class="marqueeContainer">
+			<div id="albumWrapper" class="wrapper loaded" >
+				<span id="album_info" class="line aMarquee shadowedObj">Album is longer and long enough&nbsp;&nbsp;&nbsp;Album is longer and long enough&nbsp;&nbsp;&nbsp;Album is longer and long enough</span>
+			</div>
+		</div>
 	</div>
 	<div class="idiv">
-		<button class="button" id="replay_button">REPLAY</button>
-		<button class="button" id="play_button">PLAY</button>
-		<button class="button" id="pause_button">PAUSE</button>
-		<button class="button" id="skip_button">SKIP</button>
+		<button class="button whiteShadowed" id="replay_button">REPLAY</button>
+		<button class="button whiteShadowed" id="play_button">PLAY</button>
+		<button class="button whiteShadowed" id="pause_button">PAUSE</button>
+		<button class="button whiteShadowed" id="skip_button">SKIP</button>
 		<div id="slide_container">
-			<img class="img" id="sound_button" src="img/soundOn32.png">
+			<img class="img" title="Toggle Mute" id="sound_button" src="img/soundOn32.png">
 			<input type="range" min="0" max="100" value="100" class="slider" id="volume_slider"></input>
 		</div>
 	</div>
