@@ -69,12 +69,14 @@ function restore_options() {
 		userName: '',
 		password: '',
 		remember: '',
-		rightClickDownload: false
+		rightClickDownload: false,
+		continuePlaying: false
 	}, function(items) {
  		document.getElementById('user').value = items.userName;
 		document.getElementById('pass').value = items.password;
 		document.getElementById('rem').checked = items.remember;
 		document.getElementById("so3Check").checked = items.rightClickDownload;
+		document.getElementById("so4Check").checked = items.continuePlaying;
 		var save = document.getElementById('save');
 		if (items.remember){
 			save.textContent = "Save/Login"; save.value = "Save/Login";
@@ -95,6 +97,7 @@ function load() {
 	document.getElementById('so1').addEventListener('click', so1);
 	document.getElementById('so2').addEventListener('click', so2);
 	document.getElementById('so3').addEventListener('click', so3);
+	document.getElementById('so4').addEventListener('click', so4);
 	dragElement(document.getElementById(('dragDiv1')));
 	dragElement(document.getElementById(('dragDiv2')));
 	restore_options();
@@ -108,8 +111,17 @@ function so2() {
 	chrome.tabs.create({ url: "chrome://settings/?search=Continue+running+background+apps+when+Google+Chrome+is+Closed"});
 }
 
-function so3() {
+function so3(e) {
+	if(e.target.tagName == "LABEL"){ return; }
 	chrome.storage.sync.set( {rightClickDownload: document.getElementById("so3Check").checked} );
+}
+
+function so4(e) {
+	if(e.target.tagName == "LABEL"){ return; }
+	if(document.getElementById("so4Check").checked){
+		document.getElementById("so4Check").checked = confirm("Enabling this allows Pieratora to continue playing after Chrome has been closed.\n\nAny Keyboard Shortcuts set to 'Global' will still work.\nIn this state the extension can be accessed by re-opening chrome, or via the Chrome Icon in the System Tray.\n\nIn order for this mode to work make sure you have enabled the 'Continue running background apps when Google Chrome is closed' setting from your Chrome Browser Setting. The 'Play In Background' button under 'Special Options' will navigate you to this setting.\n\nOnce this setting is enabled audio will continue even though you close chrome, please confirm you would like to enable this setting!");
+	}
+	chrome.storage.sync.set( {continuePlaying: document.getElementById("so4Check").checked} );
 }
 
 function showPass() {

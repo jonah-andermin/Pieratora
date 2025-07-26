@@ -275,7 +275,10 @@
 			0% { left: 0%; }
 			100% { left: var(--aCalc); }
 		}
-		.disabledMenuItem {
+		#rightClickDownload.disabledMenuItem {
+			display: none;
+		}
+		#rightClickBGAudio.disabledMenuItem {
 			display: none;
 		}
 
@@ -316,8 +319,9 @@
 		</div>
 	</div>
 	<div id="rightClickMenu" class="ContextMenu" style="display:none">
-		<a id="rightClickDownload" href="#" class="shadowedObj noSelect disabledMenuItem" style='display:block'>Download Current Song!</a>
+		<a id="rightClickDownload" href="#" class="shadowedObj noSelect disabledMenuItem">Download Current Song!</a>
 		<a id="rightClickOptions" href="/options.html" target="_blank" class="shadowedObj noSelect disabledMenuItem" style='display:block'>Open Options Page</a>
+		<a id="rightClickBGAudio" href="#" title="Prevent Audio form Playing After Chrome Has Been Closed" class="shadowedObj noSelect disabledMenuItem">Block Audio after Close</a>
 	</div>
 </body>
 </html>

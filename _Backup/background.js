@@ -21,13 +21,14 @@ function suppress_dev_warning(info) {
 	}
 }
 
-function removal(id){
-    chrome.windows.getAll(function(windowsArray){
-    if(_DEBUG_){console.log("CHECKING CLOSE!");}
-    if((!windowsArray.length) && !_PERSIST )//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
-        if(_DEBUG_){console.log("DO CLOSE!");}
-        _audio.pause();//THEN STOP PLAYING AUDIO!!!
-    });
+function removal(items){
+	if(items.continuePlaying){return;}
+	chrome.windows.getAll(function(windowsArray){
+	if(_DEBUG_){console.log("CHECKING CLOSE!");}
+	if((!windowsArray.length) && !_PERSIST )//IF ALL WINDOWS CLOSED && USER DOESN'T WANT PERSIST
+		if(_DEBUG_){console.log("DO CLOSE!");}
+		_audio.pause();//THEN STOP PLAYING AUDIO!!!
+	});
 }
 
 function check_ext_open(callback) {
@@ -63,7 +64,7 @@ function suppress_on_dev(){
 }
 
 check_ext_open(suppress_on_dev);
-chrome.windows.onRemoved.addListener(removal);
+chrome.windows.onRemoved.addListener(function(id){ chrome.storage.sync.get( {continuePlaying: false}, removal); });
 //End PRE-init Code *************************************************************************************************
 
 var STATUS_ = { TYPE_: "STATUS", OPEN_: false, LOGGED_: false, ERROR_: NaN, VOLUME_: 1, MUTED_: false};
@@ -140,6 +141,7 @@ chrome.commands.onCommand.addListener(function(command) {
 			remoteMute();
 			break;
 		case "download-current-song":
+			if(_currentSong.audioURL){ download(_currentSong); }
 			break;
 		default:
 			if(_DEBUG_){console.log('Command[unsupported]:', command);}

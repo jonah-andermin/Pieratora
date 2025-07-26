@@ -248,10 +248,11 @@ window.onload = function() {
 	document.getElementById("nextS").onclick = next_song;
 	document.getElementById("prevS").onclick = prev_song;
 	document.getElementById("rightClickDownload").onclick = downloadSong;
+	document.getElementById("rightClickBGAudio").onclick = disableBackgroundAudio;
 	setSongMarquee();
 	setAlbumMarquee();
 	document.addEventListener("contextmenu", function(e){
-		chrome.storage.sync.get( {rightClickDownload: false}, rightClickCallback(e) );
+		chrome.storage.sync.get( {rightClickDownload: false, continuePlaying: false}, rightClickCallback(e) );
     		e.preventDefault();
 	}, false);
 	if(debug){console.log("onload completed");}
@@ -259,6 +260,10 @@ window.onload = function() {
 
 function downloadSong() {
 	chrome.runtime.sendMessage({ request: "_DOWNLOAD" });
+}
+
+function disableBackgroundAudio() {
+	chrome.storage.sync.set( {continuePlaying: false} );
 }
 
 function setSongMarquee() {
@@ -275,11 +280,17 @@ function setAlbumMarquee() {
 
 function rightClickCallback(e) {
 	return function(items){
-		if(items.rightClickDownload) {
+		if(!items.rightClickDownload) {
 			document.getElementById("rightClickDownload").classList.add("disabledMenuItem");
 		}
 		else {
 			document.getElementById("rightClickDownload").classList.remove("disabledMenuItem");
+		}
+		if(!items.continuePlaying) {
+			document.getElementById("rightClickBGAudio").classList.add("disabledMenuItem");
+		}
+		else {
+			document.getElementById("rightClickBGAudio").classList.remove("disabledMenuItem");
 		}
 		console.log(e);
 		var menu = document.getElementById("rightClickMenu");
