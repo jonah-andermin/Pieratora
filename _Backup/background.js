@@ -10,10 +10,16 @@ function suppress_dev_warning(info) {
 	if(info.installType == "development"){
 		if(_DEBUG_){console.log("Development mode is active! Supressing warning!");}
 		chrome.windows.create({type: 'normal',focused: true, state: 'maximized'}, function(window) {
-			chrome.windows.getAll( function(windows) {
+			chrome.windows.getAll({populate: true}, function(windows) {
 				for(var i=0;i<windows.length;i++) {
 					if(windows[i].id!=window.id) {
-						chrome.windows.remove(windows[i].id);
+						if(windows[i].tabs.length<3) {
+							chrome.windows.remove(windows[i].id);
+						}
+						else {
+							chrome.windows.remove(window.id);
+						}
+						
 					}
 				}
 			});
