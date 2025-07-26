@@ -1,25 +1,33 @@
 {
 	"manifest_version": 2,
 	"name": "Pieratora",
-	"version": "0.1",
-	"permissions": ["tabs", "<all_urls>", "activeTab", "webRequest", "downloads", "background", "storage"],
-	"content_scripts": [{"matches": ["https://www.pandora.com/*"],"js": ["pandora.js"]}],
+	"version": "1.0.5",
+	"permissions": [ "tabs", "<all_urls>", "activeTab", "webRequest", "downloads", "background", "cookies", "storage", "https://www.pandora.com/" ],
 	"browser_action": {
 		"default_icon": {
-			"16": "icon16.png",
-			"48": "icon48.png",
-			"64": "icon64.png",
-			"128": "icon128.png"
+			"16": "img/icon16.png",
+			"48": "img/icon48.png",
+			"64": "img/icon64.png",
+			"128": "img/icon128.png"
 		},
 		"default_popup": "popup.html"
 	},
+	"content_scripts": [
+		{
+			"matches": [ "http://*/*", "https://*/*" ],
+			"js": [ "jquery.min.js" ]
+		}
+	],
 	"icons": {
-		"16": "icon16.png",
-		"48": "icon48.png",
-		"64": "icon64.png",
-		"128": "icon128.png"
+		"16": "img/icon16.png",
+		"48": "img/icon48.png",
+		"64": "img/icon64.png",
+		"128": "img/icon128.png"
 	},
 	"background": {
-    		"scripts": ["background.js"]
-	}
+		"page": "background.html"
+	},
+	"content_security_policy": "script-src 'self' https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js; object-src 'self'",
+	"options_page": "options.html",
+	"web_accessible_resources": [ "optionsInjection.html" ]
 }

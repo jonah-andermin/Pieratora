@@ -4,7 +4,8 @@ function save_options() {
   var pass = document.getElementById('pass').value;
   chrome.storage.sync.set({
     userName: user,
-    password: pass
+	password: pass,
+	remember: true
   }, function() {
     // Update status to let user know options were saved.
     var status = document.getElementById('status');
@@ -15,41 +16,88 @@ function save_options() {
   });
 }
 
-// Restores select box and checkbox state using the preferences
-// stored in chrome.storage.
-function restore_options() {
-  // Use default value color = 'red' and likesColor = true.
-  chrome.storage.sync.get({
-    userName: "",
-    password: ""
-  }, function(items) {
-    document.getElementById('user').value = items.userName;
-    document.getElementById('pass').checked = items.password;
+function clear_options() {
+  chrome.storage.sync.set({
+    userName: '',
+	password: '',
+	remember: false
+  }, function() {
+    // Update status to let user know options were saved.
   });
 }
 
+function save_login() {
+	if (document.getElementById('rem').checked) {
+		save_options();
+	}
+	else {
+		clear_options();
+	}
+	login();
+}
+
+function login() { 
+	console.log("start login!!!");
+	chrome.runtime.sendMessage({ request: "_LOGIN", options: true, userName: document.getElementById('user').value, password: document.getElementById('pass').value}, async function(response) {
+		//alert(response);
+		//if (response == null) {
+		//	return;
+		//}
+		console.log("RESPONE_LOGIN:", response);
+	});
+}
+
+function setSaveCheck() {
+	var save = document.getElementById('save');
+	switch (this.checked) {
+		case true:
+			save.textContent = "Save/Login"; save.value = "Save/Login"; break;
+		case false:
+			save.textContent = "Login"; save.value = "Login"; break;
+	}
+}
+
+// Restores select box and checkbox state using the preferences
+// stored in chrome.storage.
+function restore_options() {
+	chrome.storage.sync.get({
+		userName: '',
+		password: '',
+		remember: ''
+	}, function(items) {
+ 		document.getElementById('user').value = items.userName;
+		document.getElementById('pass').value = items.password;
+		document.getElementById('rem').checked = items.remember;
+		var save = document.getElementById('save');
+		if (items.remember){
+			save.textContent = "Save/Login"; save.value = "Save/Login";
+		}
+		else {
+			save.textContent = "Login"; save.value = "Login"; 
+		}
+
+	});
+}
+
 function load() {
-	document.getElementById('save').addEventListener('click', save_options);
+	document.getElementById('rem').addEventListener('click', setSaveCheck);
+	document.getElementById('save').addEventListener('click', save_login);
 	document.getElementById('show').addEventListener('click', showPass);
 	document.getElementById('hide').addEventListener('click', hidePass);
 	restore_options();
 }
 
 function showPass() {
-	document.getElementById('hide').style.display = "inline-block";
-	document.getElementById('show').style.display = "none";
-	document.getElementById('pass').type = "password";
+	document.getElementById('hide').style.display = 'inline-block';
+	document.getElementById('show').style.display = 'none';
+	document.getElementById('pass').type = 'text';
 }
 
 function hidePass() {
-	document.getElementById('hide').style.display = "none";
-	document.getElementById('show').style.display = "inline-block";
-	document.getElementById('pass').type = "text";
+	document.getElementById('hide').style.display = 'none';
+	document.getElementById('show').style.display = 'inline-block';
+	document.getElementById('pass').type = 'password';
 }
-
-
-
-dragElement(document.getElementById(("dragDiv")));
 
 function dragElement(element) {
 	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, eleft = 0, etop = 0;
@@ -57,9 +105,9 @@ function dragElement(element) {
 	var storage = {};
 	style = element.currentStyle || window.getComputedStyle(element);
 	console.log(style.marginLeft);
-	if (document.getElementById(element.id + "_Header")) {
+	if (document.getElementById(element.id + '_Header')) {
 		/* if present, the header is where you move the DIV from:*/
-		document.getElementById(element.id + "_Header").onmousedown = dragMouseDown;
+		document.getElementById(element.id + '_Header').onmousedown = dragMouseDown;
 	} else {
 		/* otherwise, move the DIV from anywhere inside the DIV:*/
 		element.onmousedown = dragMouseDown;
@@ -83,8 +131,8 @@ function dragElement(element) {
 		pos3 = pos1 - e.clientX;
 		pos4 = pos2 - e.clientY;
 		// set the element's new position:
-		element.style.left = eleft - pos3 + "px";
-		element.style.top = etop - pos4 + "px";
+		element.style.left = eleft - pos3 + 'px';
+		element.style.top = etop - pos4 + 'px';
 	}
 
 	function closeDragElement() {
@@ -107,6 +155,9 @@ function dragElement(element) {
 	}
 }
 
-
-
 document.addEventListener('DOMContentLoaded', load);
+document.addEventListener('DOMContentLoaded', function () {
+	dragElement(document.getElementById(('dragDiv')));
+});
+load();
+dragElement(document.getElementById(('dragDiv')));

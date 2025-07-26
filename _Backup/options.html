@@ -15,6 +15,10 @@
 				background-repeat: repeat-x;
 				background: linear-gradient(135deg, #000000 5%, #ff7200 64%,#ffffff 95%);
 			}
+			.topLeft {
+				top: 10px;
+				left: 10px;
+			}
 			.transparent {
 				background-color: rgba(0,0,0,0.5);
 			}
@@ -26,7 +30,7 @@
 				margin: 10px 10px 10px 10px;
 			}
 			.dragPanel {
-				position: absolute;
+				position: fixed;
 			}
 
 			.dragPanelHeader {
@@ -44,7 +48,7 @@
 			html{
 				height: 100%
 			}
-			p{
+			p, #checkboxLabel, #status {
 				text-shadow: -0.6px -0.6px 15px #f3570c, -0.6px 0.4px 15px #f3570c, -0.6px 1.4px 15px #f3570c, 0.4px -0.6px 15px #f3570c, 0.4px 0.4px 15px #f3570c, 0.4px 1.4px 15px #f3570c, 1.4px -0.6px 15px #f3570c, 1.4px 0.4px 15px #f3570c, 1.4px 1.4px 15px #f3570c;
 				font-weight: bold;
       			}
@@ -53,6 +57,9 @@
 			}
 			.label{
 				font-size: large;
+			}
+			#show, #hide{
+				min-width: 50px;
 			}
 
 		</style>
@@ -64,21 +71,21 @@
 			<div>
 				<p class="label">Username/Email:</p>
 				<div>
-					<input id="user" type="email" autofocus 
-placeholder="UserName@EmailDomain.DomainExtension" value="" autocomplete="off">
+					<input id="user" type="email" autofocus
+						   placeholder="UserName@Email.Domain" value="" autocomplete="off"/>
 				</div>
 			</div>
-			<span>
+			<div>
 				<p class="label">Password:</p>
 				<div class="overflowing">
-					<input id="pass" type="password" autofocus placeholder="8-6-7-5-3-
-Oh-Niegh-He-Ine" value="" autocomplete="off">
+					<input id="pass" type="password" autofocus placeholder="password" value="" autocomplete="off"/>
 					<button class="vis" type="button" id="show" style="display: inline-block">Show</button>
 					<button class="hid" type="button" id="hide" style="display: none">Hide</button>
 				</div>
-			</span>
+			</div>
 			<div id="status"></div>
-			<button id="save">Save</button>
+			<button id="save">Login</button>
+			<label id="checkboxLabel"><input id="rem" type="checkbox" value="Remember Login Info"/>Remember me</label>
 		</div>
 		<script src="options.js"></script>
 	</body>
