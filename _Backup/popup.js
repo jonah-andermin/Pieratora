@@ -119,18 +119,6 @@ function pan() {
 	});
 }
 
-function close_button() {
-	var btn = document.getElementById("close_button");
-	var power = btn.src.includes("img/on64.png");
-	chrome.runtime.sendMessage({ request: "_CLOSE", power: power});
-	if (!power) {
-		btn.setAttribute('src', "img/on64.png");
-	}
-	else {
-		btn.setAttribute('src', "img/off64.png");
-	}
-}
-
 function sound_button() {
 	var btn = document.getElementById("sound_button");
 	var power = btn.src.includes("img/soundOn32.png");

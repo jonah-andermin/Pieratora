@@ -28,11 +28,22 @@ var _pastSongs = {};
 var _currentSong = {};
 var _currentStation = {};
 var _stationId = "NaN";
-var _audio = document.createElement("audio"); _audio.onended = function() { nextSong(_stationId); sendData()};
 var _username = false;
 var _password = false;
 var _csrf = null;
 var _cookie = null;
+
+var _audio = document.createElement("audio"); 
+_audio.onended = function() { nextSong(_stationId); sendData(); };
+_audio.onerror = function() { 
+	if(this.error.code == 4){
+		_currentSong.audioURL = ""; 
+		_currentSong.songTitle = "This song Failed to Load!"; 
+		_currentSong.artistName="This song Failed to Load!"; 
+		_currentSong.remove = true;
+	}
+	this.onended();
+}
 
 chrome.commands.onCommand.addListener(function(command) {
 	var volume = 0.00;
@@ -207,9 +218,6 @@ chrome.runtime.onMessage.addListener(
 			nextSong(_stationId, oldID, true);
 			sendData();
 		}
-		else if (request.request == "_CLOSE") {
-			closePieratora(request.power);
-		}
 		else if (request.request == "_SOUND") {
 			mutePieratora(request.power);
 		}
@@ -243,13 +251,18 @@ chrome.runtime.onMessage.addListener(
 //=================================================================================================================================================================================abstract_httprequest
 
 function httpPostAsync(url, body, requestHeaderAttributes, callback, fail, retry) {//error 0x
+	
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function () {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 			callback(xmlHttp.responseText);
 		}
 		else if (xmlHttp.readyState == 4){
-			if(_DEBUG_){console.log("{Status != 200} RESPONSE:"), console.log(xmlHttp.responseText), (fail || function(){})();}
+			if(_DEBUG_){console.log("[Status != 200] RESPONSE: ", xmlHttp.responseText)}
+			if(!fail){fail = function(){};}
+			if(fail(xmlHttp.responseText)){
+				return;
+			}
 			STATUS_.LOGGED_ = false;
 			STATUS_.OPEN_ = false;
 			if(!retry){
@@ -405,14 +418,19 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 			_pastSongs[oldID] = [];
 		}
 		_currentSong.XXRESUMEXX = _audio.currentTime
-		_pastSongs[oldID].push(_currentSong);
+		if(!_currentSong.remove){_pastSongs[oldID].push(_currentSong);}
 		if(_pastSongs[oldID].length > 25) {
 			_pastSongs[oldID].shift()
 		}
 	}
 	if(getLast && _pastSongs[stationID] && _pastSongs[stationID].length) {
 		_currentSong = _pastSongs[stationID].pop();
-		_audio.setAttribute('src', _currentSong.audioURL);
+		if(_currentSong.audioURL != "") {
+			_audio.setAttribute('src', _currentSong.audioURL);
+		}
+		else {
+			_audio.removeAttribute('src');
+		}
 		_audio.volume = STATUS_.VOLUME_;
 		if(_currentSong.XXRESUMEXX) {
 			_audio.currentTime = _currentSong.XXRESUMEXX;
@@ -437,7 +455,12 @@ function nextSong(stationID, oldID, getLast, paused) {//error 4x
 	else {
 		if(_DEBUG_){console.log("3");}
 		_currentSong = _songLists[stationID].shift();
-		_audio.setAttribute('src', _currentSong.audioURL);
+		if(_currentSong.audioURL != "") {
+			_audio.setAttribute('src', _currentSong.audioURL);
+		}
+		else {
+			_audio.removeAttribute('src');
+		}
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
 	}
@@ -460,7 +483,12 @@ function prevSong(stationID) {//error 5x-??????
 	if(_pastSongs[stationID].length == 0) { return; }
 	_songLists[stationID].unshift(_currentSong);
 	_currentSong = _pastSongs[stationID].pop();
-	_audio.setAttribute('src', _currentSong.audioURL);
+	if(_currentSong.audioURL != "") {
+		_audio.setAttribute('src', _currentSong.audioURL);
+	}
+	else {
+		_audio.removeAttribute('src');
+	}
 	_audio.volume = STATUS_.VOLUME_;
 	_audio.play();
 }
@@ -473,20 +501,16 @@ function _utility_AddNextSong(statID){
 		_currentSong = _songLists[statID].shift();
 		if(_DEBUG_){console.log("_songLists");console.log(_songLists);}
 		if(_DEBUG_){console.log("_currentSong");console.log(_currentSong);}
-		_audio.setAttribute('src', _currentSong.audioURL);
+		if(_currentSong.audioURL != "") {
+			_audio.setAttribute('src', _currentSong.audioURL);
+		}
+		else {
+			_audio.removeAttribute('src');
+		}
 		_audio.volume = STATUS_.VOLUME_;
 		_audio.play();
 		sendData();
 	});
-}
-
-function closePieratora(power) {
-	if (STATUS_.OPEN_ = power) {
-		tryStartAudio();
-	}
-	else {
-		stopAudio();
-	}
 }
 
 function tryStartAudio() {
@@ -499,14 +523,6 @@ function tryStartAudio() {
 		if(_DEBUG_){console.log("_trystart _currentSong"); console.log(_currentSong);}
 		//return _currentSong;//un-needed?
 	}
-}
-
-function stopAudio() {
-	if (!jQuery.isEmptyObject(_currentSong)) {
-		_pastSongs[stationID].push(_currentSong);
-	}
-	currentSong = {};
-	_audio.src = "";
 }
 
 function mutePieratora(power) {
